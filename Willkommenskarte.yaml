@@ -1,32 +1,43 @@
+# ------------------------------
+# Willkommenskarte für Home Assistant Dashboard
+# Beschreibung: Diese YAML-Datei erstellt ein benutzerdefiniertes Dashboard 
+# mit einer Willkommensnachricht, Wetterdaten, Benutzerstatus und mehr.
+# Hauptidee: Home Assistant Community => User rhysb
+# Link: https://community.home-assistant.io/t/mushroom-cards-build-a-beautiful-dashboard-easily-part-1/388590/5993
+# ------------------------------
+
+
 type: custom:stack-in-card
 cards:
   - type: custom:layout-card
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: auto auto
-      margin: 8px 4px 4px 4px;
+      grid-template-columns: auto auto    #Definiert ein zweispaltiges Layout für die Karten in diesem Abschnitt
+      margin: 8px 4px 4px 4px;            #Abstand der Karten zueinander und zum Rand
     cards:
-      - type: custom:mushroom-chips-card
+      - type: custom:mushroom-chips-card  #Benutzerchips: Zeigen die aktuelle Position/Zone der Personen an und Popup für Person
         chips:
           - type: entity
-            entity: person.sandra_boose
+            entity: person.PERSON_1
             content_info: none
-            use_entity_picture: true
+            use_entity_picture: true      #Profilbild statt Icon anzeigen
             tap_action:
-              action: fire-dom-event
+              action: fire-dom-event      #Anzeige eines Popups
               browser_mod:
                 service: browser_mod.popup
                 data:
-                  title: Sandra
+                  title: Person 1         #Title vom Popup
                   content:
                     type: vertical-stack
                     cards:
                       - type: custom:mushroom-person-card
-                        entity: person.sandra_boose
+                        entity: person.PERSON_1
                         icon_type: entity-picture
             card_mod:
-              style: |
-                /* Color border around avatar to show person status */
+              style: >
+                /* Dynamischer Rahmen um das Profilbild basierend auf der Zone
+                wo sich die Person befindet */
+
                 ha-card {
                   --chip-background:
                   {% if is_state(config.entity, ['home', 'not_home', 'unknown']) %}
@@ -35,32 +46,36 @@ cards:
                     rgb(var(--rgb-state-person-zone))
                   {% endif %};
                 } 
-                /* Slightly enlarge & bring to front on hover */
+
+                /* Animation beim Überfahren mit der Maus */
+
                 ha-card:hover {
-                  transform: scale(1.2);
+                  transform: scale(1.4);
                   transform-origin: top center;
                   z-index: 1;
                   transition: all 1s;
                 }
           - type: entity
-            entity: person.niklas_boose
+            entity: person.PERSON_2
             content_info: none
-            use_entity_picture: true
+            use_entity_picture: true      #Profilbild statt Icon anzeigen
             tap_action:
-              action: fire-dom-event
+              action: fire-dom-event      #Anzeige eines Popups
               browser_mod:
                 service: browser_mod.popup
                 data:
-                  title: Niklas
+                  title: Person 2         #Title vom Popup
                   content:
                     type: vertical-stack
                     cards:
                       - type: custom:mushroom-person-card
-                        entity: person.niklas_boose
+                        entity: person.PERSON_2
                         icon_type: entity-picture
             card_mod:
-              style: |
-                /* Color border around avatar to show person status */
+              style: >
+                /* Dynamischer Rahmen um das Profilbild basierend auf der Zone
+                wo sich die Person befindet */
+
                 ha-card {
                   --chip-background:
                   {% if is_state(config.entity, ['home', 'not_home', 'unknown']) %}
@@ -69,33 +84,35 @@ cards:
                     rgb(var(--rgb-state-person-zone))
                   {% endif %};
                 } 
-                /* Slightly enlarge & bring to front on hover */
+
+                /* Animation beim Überfahren mit der Maus */
+
                 ha-card:hover {
-                  transform: scale(1.2);
+                  transform: scale(1.4);
                   transform-origin: top center;
                   z-index: 1;
                   transition: all 1s;
                 }
-        alignment: end
+        alignment: end                    #Positioniert die Chips rechtsbündig
         card_mod:
           style: |
             ha-card { 
-              /* Overlap avatar Chips */
-              --chip-spacing: calc(-1 * var(--mush-chip-spacing, 8px));
+              /* Abstand zwischen den Personenchips */
+              --chip-spacing: 2px;
 
-              /* Set size of border around Chips */
+              /* Dicke der Umrandung um den Avatar */
               --chip-avatar-padding: 2px;
 
-              /* Reduce width to fit Chips & allow max space for weather */
+              /* Passt die Breite an die Inhalte an & Erlaubt den maximalen Platz fürs Wetter */
               width: fit-content;
               transition: all 0s;
             }
-      - type: custom:button-card
+      - type: custom:button-card          #Wetteranzeige: Zeigt die aktuelle Temperatur, ein dynamisches Icon und ist ein Button für das Popup
         label: >
-          [[[return states[ 'sensor.g_terrasse_wetterstation_temperatur'].state
+          [[[return states[ 'sensor.AUßENTEMPERATUR'].state
           + '<span style="font-size:0.6em">°C</span>']]]
         show_label: true
-        custom_fields:
+        custom_fields:                    #Animierte Wetterdatein werden im WWW Ordner benötoigt
           icon: |
             [[[
               var weather = states['weather.pirateweather'].state;
@@ -137,8 +154,8 @@ cards:
                     show_humidity: true
                     hide_clock: true
                     hide_date: true
-                    temperature_sensor: sensor.g_terrasse_wetterstation_temperatur
-                    humidity_sensor: sensor.g_terrasse_wetterstation_luftfeuchtigkeit
+                    temperature_sensor: sensor.AUßENTEMPERATUR
+                    humidity_sensor: sensor.AUßENLUFTFEUCHTIGKEIT
                     show_decimal: true
                     card_mod:
                       style: |
@@ -406,7 +423,7 @@ cards:
                     cards:
                       - type: custom:mini-graph-card
                         entities:
-                          - entity: sensor.g_terrasse_wetterstation_temperatur
+                          - entity: sensor.AUßENTEMPERATUR
                         group: false
                         line_width: 6
                         hour24: true
