@@ -1,0 +1,965 @@
+type: custom:stack-in-card
+cards:
+  - type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: auto auto
+      margin: 8px 4px 4px 4px;
+    cards:
+      - type: custom:mushroom-chips-card
+        chips:
+          - type: entity
+            entity: person.sandra_boose
+            content_info: none
+            use_entity_picture: true
+            tap_action:
+              action: fire-dom-event
+              browser_mod:
+                service: browser_mod.popup
+                data:
+                  title: Sandra
+                  content:
+                    type: vertical-stack
+                    cards:
+                      - type: custom:mushroom-person-card
+                        entity: person.sandra_boose
+                        icon_type: entity-picture
+            card_mod:
+              style: |
+                /* Color border around avatar to show person status */
+                ha-card {
+                  --chip-background:
+                  {% if is_state(config.entity, ['home', 'not_home', 'unknown']) %}
+                    rgb(var(--rgb-state-person-{{ states(config.entity) | replace('_', '-') }} ))
+                  {% else %}
+                    rgb(var(--rgb-state-person-zone))
+                  {% endif %};
+                } 
+                /* Slightly enlarge & bring to front on hover */
+                ha-card:hover {
+                  transform: scale(1.2);
+                  transform-origin: top center;
+                  z-index: 1;
+                  transition: all 1s;
+                }
+          - type: entity
+            entity: person.niklas_boose
+            content_info: none
+            use_entity_picture: true
+            tap_action:
+              action: fire-dom-event
+              browser_mod:
+                service: browser_mod.popup
+                data:
+                  title: Niklas
+                  content:
+                    type: vertical-stack
+                    cards:
+                      - type: custom:mushroom-person-card
+                        entity: person.niklas_boose
+                        icon_type: entity-picture
+            card_mod:
+              style: |
+                /* Color border around avatar to show person status */
+                ha-card {
+                  --chip-background:
+                  {% if is_state(config.entity, ['home', 'not_home', 'unknown']) %}
+                    rgb(var(--rgb-state-person-{{ states(config.entity) | replace('_', '-') }} ))
+                  {% else %}
+                    rgb(var(--rgb-state-person-zone))
+                  {% endif %};
+                } 
+                /* Slightly enlarge & bring to front on hover */
+                ha-card:hover {
+                  transform: scale(1.2);
+                  transform-origin: top center;
+                  z-index: 1;
+                  transition: all 1s;
+                }
+        alignment: end
+        card_mod:
+          style: |
+            ha-card { 
+              /* Overlap avatar Chips */
+              --chip-spacing: calc(-1 * var(--mush-chip-spacing, 8px));
+
+              /* Set size of border around Chips */
+              --chip-avatar-padding: 2px;
+
+              /* Reduce width to fit Chips & allow max space for weather */
+              width: fit-content;
+              transition: all 0s;
+            }
+      - type: custom:button-card
+        label: >
+          [[[return states[ 'sensor.g_terrasse_wetterstation_temperatur'].state
+          + '<span style="font-size:0.6em">°C</span>']]]
+        show_label: true
+        custom_fields:
+          icon: |
+            [[[
+              var weather = states['weather.pirateweather'].state;
+              return '<img src = "/local/weather_icons/anim/' + weather + '.svg" width="90" height="90" />'
+            ]]] 
+        styles:
+          grid: null
+          card:
+            - overflow: visible
+            - background: none
+          custom_fields:
+            icon:
+              - justify-self: end
+              - align-self: end
+              - padding-right: 20px
+              - margin-bottom: "-100px"
+          label:
+            - font-weight: bold
+            - font-size: 24px
+            - margin-bottom: "-45px"
+        tap_action:
+          action: fire-dom-event
+          browser_mod:
+            service: browser_mod.popup
+            data:
+              title: Wetter
+              content:
+                type: custom:vertical-stack-in-card
+                card_mod:
+                  style: |
+                    ha-card {
+                        background: none;
+                    }
+                cards:
+                  - type: custom:clock-weather-card
+                    entity: weather.pirateweather
+                    hide_today_section: false
+                    hide_forecast_section: true
+                    show_humidity: true
+                    hide_clock: true
+                    hide_date: true
+                    temperature_sensor: sensor.g_terrasse_wetterstation_temperatur
+                    humidity_sensor: sensor.g_terrasse_wetterstation_luftfeuchtigkeit
+                    show_decimal: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                            background: none;
+                            margin-top: -60px;
+                            /*height: 130px !important;*/
+                        }
+                  - type: custom:horizon-card
+                    card_mod:
+                      style: |
+                        ha-card {
+                            background: none;     
+                        }
+                  - type: custom:hourly-weather
+                    entity: weather.pirateweather
+                    label_spacing: "3"
+                    offset: "0"
+                    num_segments: "12"
+                    icons: true
+                    show_wind: "false"
+                    show_date: "false"
+                    show_precipitation_amounts: false
+                    show_precipitation_probability: true
+                    name: false
+                    card_mod:
+                      style: |
+                        ha-card {
+                            background: none;     
+                        }
+                  - type: custom:clock-weather-card
+                    title: false
+                    entity: weather.pirateweather
+                    weather_icon_type: line
+                    forecast_rows: 7
+                    locale: de
+                    time_format: 24
+                    date_pattern: ccc, dd. MMM yy
+                    hide_today_section: true
+                    hide_forecast_section: false
+                    show_humidity: false
+                    hide_clock: false
+                    hide_date: true
+                    hourly_forecast: false
+                    show_decimal: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                            background: none;    
+                        }
+                  - type: conditional
+                    conditions:
+                      - condition: or
+                        conditions:
+                          - condition: state
+                            entity: sensor.pollenflug_ambrosia_81
+                            state_not: "0"
+                          - condition: state
+                            entity: sensor.pollenflug_beifuss_81
+                            state_not: "0"
+                          - condition: state
+                            entity: sensor.pollenflug_birke_81
+                            state_not: "0"
+                          - condition: state
+                            entity: sensor.pollenflug_erle_81
+                            state_not: "0"
+                          - condition: state
+                            entity: sensor.pollenflug_esche_81
+                            state_not: "0"
+                          - condition: state
+                            entity: sensor.pollenflug_graeser_81
+                            state_not: "0"
+                          - condition: state
+                            entity: sensor.pollenflug_hasel_81
+                            state_not: "0"
+                          - condition: state
+                            entity: sensor.pollenflug_roggen_81
+                            state_not: "0"
+                    card:
+                      type: custom:bar-card
+                      entities:
+                        - entity: sensor.pollenflug_ambrosia_81
+                          name: Ambrosia
+                          min: 0
+                          max: 3
+                          decimal: 1
+                          severity:
+                            - from: 0
+                              to: 0
+                              color: cyan
+                              hide: true
+                            - from: 0.5
+                              to: 0.5
+                              color: green
+                            - from: 1
+                              to: 1
+                              color: darkkhaki
+                            - from: 1.5
+                              to: 2
+                              color: orange
+                            - from: 2.5
+                              to: 3
+                              color: red
+                        - entity: sensor.pollenflug_beifuss_81
+                          name: Beifuß
+                          min: 0
+                          max: 3
+                          decimal: 1
+                          severity:
+                            - from: 0
+                              to: 0
+                              color: cyan
+                              hide: true
+                            - from: 0.5
+                              to: 0.5
+                              color: green
+                            - from: 1
+                              to: 1
+                              color: darkkhaki
+                            - from: 1.5
+                              to: 2
+                              color: orange
+                            - from: 2.5
+                              to: 3
+                              color: red
+                        - entity: sensor.pollenflug_birke_81
+                          name: Birke
+                          min: 0
+                          max: 3
+                          decimal: 1
+                          severity:
+                            - from: 0
+                              to: 0
+                              color: cyan
+                              hide: true
+                            - from: 0.5
+                              to: 0.5
+                              color: green
+                            - from: 1
+                              to: 1
+                              color: darkkhaki
+                            - from: 1.5
+                              to: 2
+                              color: orange
+                            - from: 2.5
+                              to: 3
+                              color: red
+                        - entity: sensor.pollenflug_erle_81
+                          name: Erle
+                          min: 0
+                          max: 3
+                          decimal: 1
+                          severity:
+                            - from: 0
+                              to: 0
+                              color: cyan
+                              hide: true
+                            - from: 0.5
+                              to: 0.5
+                              color: green
+                            - from: 1
+                              to: 1
+                              color: darkkhaki
+                            - from: 1.5
+                              to: 2
+                              color: orange
+                            - from: 2.5
+                              to: 3
+                              color: red
+                        - entity: sensor.pollenflug_esche_81
+                          name: Esche
+                          min: 0
+                          max: 3
+                          decimal: 1
+                          severity:
+                            - from: 0
+                              to: 0
+                              color: cyan
+                              hide: true
+                            - from: 0.5
+                              to: 0.5
+                              color: green
+                            - from: 1
+                              to: 1
+                              color: darkkhaki
+                            - from: 1.5
+                              to: 2
+                              color: orange
+                            - from: 2.5
+                              to: 3
+                              color: red
+                        - entity: sensor.pollenflug_graeser_81
+                          name: Gräser
+                          min: 0
+                          max: 3
+                          decimal: 1
+                          severity:
+                            - from: 0
+                              to: 0
+                              color: cyan
+                              hide: true
+                            - from: 0.5
+                              to: 0.5
+                              color: green
+                            - from: 1
+                              to: 1
+                              color: darkkhaki
+                            - from: 1.5
+                              to: 2
+                              color: orange
+                            - from: 2.5
+                              to: 3
+                              color: red
+                        - entity: sensor.pollenflug_hasel_81
+                          name: Hasel
+                          min: 0
+                          max: 3
+                          decimal: 1
+                          severity:
+                            - from: 0
+                              to: 0
+                              color: cyan
+                              hide: true
+                            - from: 0.5
+                              to: 0.5
+                              color: green
+                            - from: 1
+                              to: 1
+                              color: darkkhaki
+                            - from: 1.5
+                              to: 2
+                              color: orange
+                            - from: 2.5
+                              to: 3
+                              color: red
+                        - entity: sensor.pollenflug_roggen_81
+                          name: Roggen
+                          min: 0
+                          max: 3
+                          decimal: 1
+                          severity:
+                            - from: 0
+                              to: 0
+                              color: cyan
+                              hide: true
+                            - from: 0.5
+                              to: 0.5
+                              color: green
+                            - from: 1
+                              to: 1
+                              color: darkkhaki
+                            - from: 1.5
+                              to: 2
+                              color: orange
+                            - from: 2.5
+                              to: 3
+                              color: red
+                      title: Pollenflug
+                      card_mod:
+                        style: |
+                          ha-card {
+                              background: none;     
+                          }
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:mini-graph-card
+                        entities:
+                          - entity: sensor.g_terrasse_wetterstation_temperatur
+                        group: false
+                        line_width: 6
+                        hour24: true
+                        points_per_hour: 8
+                        hours_to_show: 2
+                        show:
+                          extrema: true
+                          fill: fade
+                          icon: true
+                          labels: false
+                          name: true
+                          state: true
+                        name: Terrasse
+                        align_state: center
+                        color_thresholds:
+                          - value: 18
+                            color: blue
+                          - value: 18.1
+                            color: green
+                          - value: 23
+                            color: red
+                        color_thresholds_transition: hard
+                      - type: custom:mini-graph-card
+                        entities:
+                          - entity: sensor.innentemperatur
+                        group: false
+                        line_width: 6
+                        hour24: true
+                        points_per_hour: 8
+                        hours_to_show: 2
+                        show:
+                          extrema: true
+                          fill: fade
+                          icon: true
+                          labels: false
+                          name: true
+                          state: true
+                        name:
+                          - Drinnen
+                        align_state: center
+                        color_thresholds:
+                          - value: 18
+                            color: blue
+                          - value: 18.1
+                            color: green
+                          - value: 23
+                            color: red
+                        color_thresholds_transition: hard
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:mini-graph-card
+                        entities:
+                          - entity: >-
+                              sensor.g_terrasse_wetterstation_windgeschwindigkeit
+                        line_width: 6
+                        hour24: true
+                        points_per_hour: 8
+                        hours_to_show: 2
+                        align_state: center
+                        show:
+                          extrema: true
+                          name: false
+                          icon: false
+                        color_thresholds:
+                          - color: "#ffc000"
+                            value: 16
+                          - color: "#fee231"
+                            value: 8
+                          - color: "#55b04f"
+                            value: 2.5
+                          - color: "#189af2"
+                            value: 0
+                      - type: custom:compass-card
+                        indicator_sensors:
+                          - sensor: sensor.g_terrasse_wetterstation_windrichtung
+                            state_value:
+                              show: true
+                            state_units:
+                              show: true
+                          - sensor: sun.sun
+                            attribute: azimuth
+                            indicator:
+                              type: circle
+                              color: orange
+                        value_sensors:
+                          - sensor: >-
+                              sensor.g_terrasse_wetterstation_windgeschwindigkeit
+                        compass:
+                          north:
+                            show: true
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:mini-graph-card
+                        entities:
+                          - entity: sensor.niederschlag_regen_taglich
+                            state_adaptive_color: true
+                        line_width: 1
+                        name: Niederschlag
+                        icon: mdi:weather-pouring
+                        hour24: true
+                        points_per_hour: 1
+                        aggregate_func: max
+                        hours_to_show: 12
+                        show:
+                          extrema: true
+                        color_thresholds:
+                          - color: "#292929"
+                            value: 350
+                          - color: "#6f6f6f"
+                            value: 250
+                          - color: "#afafaf"
+                            value: 150
+                          - color: "#f8f8f8"
+                            value: 130
+                          - color: "#861586"
+                            value: 110
+                          - color: "#b00000"
+                            value: 45
+                          - color: "#ff4100"
+                            value: 30
+                          - color: "#f99c00"
+                            value: 25
+                          - color: "#ffff00"
+                            value: 10
+                          - color: "#008d00"
+                            value: 9
+                          - color: "#30ff30"
+                            value: 5
+                          - color: "#0000ef"
+                            value: 1
+                          - color: "#00c9ff"
+                            value: 0
+                      - type: custom:mini-graph-card
+                        color_thresholds:
+                          - color: "#8a60a3"
+                            value: 11
+                          - color: "#e44b19"
+                            value: 8
+                          - color: "#ec7e0e"
+                            value: 6
+                          - color: "#f4bb00"
+                            value: 3
+                          - color: "#109e48"
+                            value: 0
+                        entities:
+                          - entity: sensor.g_terrasse_wetterstation_beleuchtungsstarke
+                            name: UV Index
+                            state_adaptive_color: true
+                          - color: gray
+                            entity: sensor.g_terrasse_wetterstation_sonnenscheindauer
+                            name: Day
+                            show_legend: false
+                            show_line: false
+                            show_points: false
+                            y_axis: secondary
+                        hours_to_show: 12
+                        line_width: 1
+                        points_per_hour: 10
+                        hour24: true
+                        show:
+                          extrema: true
+        card_mod:
+          style:
+            mushroom-state-info$: |
+              /* Align text on the right */
+              .container {
+                transform: scaleX(-1);
+                text-align: right;
+                width: fit-content;
+              }
+            .: |
+              ha-card {
+
+                /* Remove styling from card */
+                --ha-card-background: none;
+                --ha-card-box-shadow: none;
+                --ha-card-border-width: 0;
+                padding: 0px !important;
+                transition: all 0s;
+              }
+  - type: horizontal-stack
+    cards:
+      - type: custom:mod-card
+        card:
+          type: custom:mushroom-title-card
+          title: |-
+            {% set time = now().hour %}
+            {% if time >= 18 %}
+              Guten Abend! Na, endlich.
+            {% elif time >= 12 %}
+              Guten Tag! Auch wach, ja?
+            {% elif time >= 5 %}
+              Guten Morgen! Früher Vogel oder Schlafmangel?
+            {% else %}
+              Willkommen! Nachteule unterwegs?
+            {% endif %}
+          subtitle: |
+            {{ user.split(' ')[0] }}
+          alignment: start
+        card_mod:
+          style:
+            mushroom-title-card$: |
+              /* Style greeting */
+              .title {
+                font-family: "Caveat";
+                --title-font-size: 24px;
+                --title-font-weight: var(--mush-subtitle-font-weight, light);
+                color: var(--secondary-text-color) !important;
+              }
+              /* Style name */
+              .subtitle {
+                font-family: "Caveat";
+                --subtitle-font-size: 30px;
+                --subtitle-font-weight: var(--mush-title-font-weight, bold);
+                color: var(--primary-text-color) !important;
+                padding-left: 12px;
+              }
+              /* Set spacing around greeting */
+              .header {
+                --title-padding: 0px 12px 18px;
+                --title-spacing: 8px;
+              }
+  - type: conditional
+    conditions:
+      - condition: state
+        entity: sensor.dresden_klotzsche_aktuelle_warnstufe
+        state_not: "0"
+    card:
+      type: entities
+      entities:
+        - type: custom:multiple-entity-row
+          entity: sensor.dresden_klotzsche_aktuelle_warnstufe
+          name: WARNUNG
+          toggle: false
+          state_color: true
+          show_state: true
+          secondary_info: ""
+          icon: mdi:exclamation-thick
+          entities:
+            - entity: sensor.dresden_klotzsche_aktuelle_warnstufe
+              attribute: warning_1_name
+              name: Warnung vor
+            - entity: sensor.dresden_klotzsche_aktuelle_warnstufe
+              attribute: warning_1_start
+              format: time
+              name: Von
+            - entity: sensor.dresden_klotzsche_aktuelle_warnstufe
+              attribute: warning_1_end
+              format: time
+              name: Bis
+          state_header: Anzahl Warnungen
+          column: true
+          card_mod:
+            style:
+              .: |
+                :host {
+                  --paper-item-icon-color: red;
+                  --mdc-icon-size: 40px;
+                  padding: 15px;
+                  background: none;
+                  }
+  - type: horizontal-stack
+    cards:
+      - type: custom:mushroom-template-card
+        secondary: Alarmo
+        icon: mdi:shield-home-outline
+        layout: vertical
+        icon_color: "#7eb0d5"
+        tap_action:
+          action: navigate
+          navigation_path: alarmo
+        card_mod:
+          style: |
+            ha-card {
+              /* Set size and spacing of button */
+              width: 64px;
+              --spacing: 8px;
+              padding-bottom: calc(var(--spacing) * 1.618) !important;
+
+              /* Styling of button */
+              background: var(--card-background-color) !important;
+              box-shadow: var(--ha-card-box-shadow) !important;
+              border-radius: calc(var(--ha-card-border-radius, 12px) * 2) !important;
+
+              /* Center button */
+              margin-left: auto;
+              margin-right: auto;
+              transition: all 0s;
+            }
+
+            /* Add subtle color on hover */
+            ha-card:hover {
+              background: color-mix(in srgb, var(--blue) 20%, var(--card-background-color)) !important;
+            }
+      - type: custom:mushroom-template-card
+        primary: ""
+        secondary: Licht
+        icon: mdi:ceiling-fan-light
+        icon_color: "#f3d64e"
+        layout: vertical
+        tap_action:
+          action: navigate
+          navigation_path: lichter
+        card_mod:
+          style: |
+            ha-card {
+              /* Set size and spacing of button */
+              width: 64px;
+              --spacing: 8px;
+              padding-bottom: calc(var(--spacing) * 1.618) !important;
+
+              /* Styling of button */
+              background: var(--card-background-color) !important;
+              box-shadow: var(--ha-card-box-shadow) !important;
+              border-radius: calc(var(--ha-card-border-radius, 12px) * 2) !important;
+
+              /* Center button */
+              margin-left: auto;
+              margin-right: auto;
+              transition: all 0s;
+            }
+
+            /* Add subtle color on hover */
+            ha-card:hover {
+              background: color-mix(in srgb, var(--yellow) 20%, var(--card-background-color)) !important;
+            }
+      - type: custom:mushroom-template-card
+        secondary: Strom
+        icon: mdi:transmission-tower
+        icon_color: "#77d6d6"
+        layout: vertical
+        tap_action:
+          action: navigate
+          navigation_path: verbrauch
+        card_mod:
+          style: |
+            ha-card {
+              /* Set size and spacing of button */
+              width: 64px;
+              --spacing: 8px;
+              padding-bottom: calc(var(--spacing) * 1.618) !important;
+
+              /* Styling of button */
+              background: var(--card-background-color) !important;
+              box-shadow: var(--ha-card-box-shadow) !important;
+              border-radius: calc(var(--ha-card-border-radius, 12px) * 2) !important;
+
+              /* Center button */
+              margin-left: auto;
+              margin-right: auto;
+              transition: all 0s;
+            }
+
+            /* Add subtle color on hover */
+            ha-card:hover {
+              background: color-mix(in srgb, var(--green) 20%, var(--card-background-color)) !important;
+            }
+      - type: custom:mushroom-template-card
+        secondary: Heizung
+        icon: mdi:thermometer-lines
+        layout: vertical
+        icon_color: "#f5a5a5"
+        tap_action:
+          action: navigate
+          navigation_path: thermostate
+        card_mod:
+          style: |
+            ha-card {
+              /* Set size and spacing of button */
+              width: 64px;
+              --spacing: 8px;
+              padding-bottom: calc(var(--spacing) * 1.618) !important;
+
+              /* Styling of button */
+              background: var(--card-background-color) !important;
+              box-shadow: var(--ha-card-box-shadow) !important;
+              border-radius: calc(var(--ha-card-border-radius, 12px) * 2) !important;
+
+              /* Center button */
+              margin-left: auto;
+              margin-right: auto;
+              transition: all 0s;
+            }
+
+            /* Add subtle color on hover */
+            ha-card:hover {
+              background: color-mix(in srgb, var(--red) 20%, var(--card-background-color)) !important;
+            }
+      - type: custom:mushroom-template-card
+        secondary: Kamera
+        icon: mdi:cctv
+        layout: vertical
+        icon_color: "#b0b0b0"
+        tap_action:
+          action: navigate
+          navigation_path: camera
+        card_mod:
+          style: |
+            ha-card {
+              /* Set size and spacing of button */
+              width: 64px;
+              --spacing: 8px;
+              padding-bottom: calc(var(--spacing) * 1.618) !important;
+
+              /* Styling of button */
+              background: var(--card-background-color) !important;
+              box-shadow: var(--ha-card-box-shadow) !important;
+              border-radius: calc(var(--ha-card-border-radius, 12px) * 2) !important;
+
+              /* Center button */
+              margin-left: auto;
+              margin-right: auto;
+              transition: all 0s;
+            }
+            /* Add subtle color on hover */
+            ha-card:hover {
+              background: color-mix(in srgb, var(--grey-color) 20%, var(--card-background-color)) !important;
+            }
+  - type: custom:vertical-stack-in-card
+    cards:
+      - event_grouping: false
+        drop_todayevents_from: "08:00:00"
+        next_days: 3
+        pattern:
+          - icon: mdi:flower
+            color: lime
+            type: organic
+            pattern: Bioabfall
+            label: Bioabfall
+            pattern_exact: false
+          - icon: mdi:newspaper
+            color: blue
+            type: paper
+            pattern: Papiertonne
+            label: Papiertonne
+          - icon: mdi:recycle-variant
+            color: amber
+            type: recycle
+            label: Gelbe Tonne
+            pattern: Gelbe Tonne
+          - icon: mdi:trash-can-outline
+            color: grey
+            type: waste
+            label: Restmüll
+            pattern: Restmüll
+          - icon: mdi:dump-truck
+            color: purple
+            type: others
+        day_style: counter
+        day_style_format: yyyy.MM.dd
+        card_style: chip
+        alignment_style: center
+        color_mode: background
+        items_per_row: 1
+        refresh_rate: 60
+        with_label: true
+        layout: default
+        type: custom:trash-card
+        entities:
+          - calendar.ics
+        filter_events: true
+        use_summary: false
+        hide_time_range: false
+    card_mod:
+      style: |
+        ha-card {
+          background: none;
+          padding: 15px
+        }
+  - type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: 85% 15%
+    cards:
+      - type: custom:week-planner-card
+        days: 1
+        updateInterval: 300
+        calendars:
+          - entity: calendar.geburtstage
+            color: "#DF01D7"
+          - entity: calendar.ics
+            color: "#585858"
+          - entity: calendar.apager_dienstplan
+            color: "#DF0101"
+          - entity: calendar.feuerwehr_dirk
+            color: "#DF0101"
+          - entity: calendar.arbeit_niklas
+            color: "#359e11"
+          - entity: calendar.familie
+            color: "#FF6347"
+          - entity: calendar.privat
+            color: "#7EB0D5"
+        compact: false
+        noCardBackground: true
+        eventBackground: rgba(200, 200, 200, 0.1)
+        startingDay: today
+        showLocation: true
+        locationLink: https://www.google.com/maps/search/?api=1&query=
+        locale: de
+        texts:
+          noEvents: Keine Einträge
+          fullDay: Ganzer Tag
+          today: Heute
+          tomorrow: Morgen
+        card_mod:
+          style: |
+            .date {
+            display: none !important;
+            }
+              
+      - type: custom:button-card
+        icon: mdi:calendar
+        tap_action:
+          action: navigate
+          navigation_path: "#kalender"
+        card_mod:
+          style: |
+            ha-card {
+              height: 80px;
+              background: none
+            }
+  - type: conditional
+    conditions:
+      - condition: numeric_state
+        entity: sensor.eg_bad_feuchtigkeitssensor_feuchtigkeit
+        above: 60
+    card:
+      type: custom:mushroom-template-card
+      primary: >-
+        WARNUNG: im Bad ist die Luftfeuchtigkeit bei {{
+        states('sensor.eg_bad_feuchtigkeitssensor_feuchtigkeit') }}%
+      secondary: >-
+        Öffne das Fenster! Draußen ist die Luftfeuchtigkeit bei {{
+        states('sensor.g_terrasse_wetterstation_luftfeuchtigkeit') }}%!
+      icon: mdi:alert
+      icon_color: red
+      card_mod:
+        style: |
+          ha-card {
+            background: none;
+          }
+card_mod:
+  style: |
+    ha-card {
+      /* Set padding of card */
+      padding: 28px 8px 12px;
+
+      /* Move card up to match header card */
+      margin-top: -28px;
+
+      /* Styling of card background */
+      background: var(--gray100) !important;
+      border-radius: 0px 0px 28px 28px;
+
+      transition: all 0s;
+    }
