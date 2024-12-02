@@ -9,7 +9,13 @@ In diesem Repository findest du:
 - **Theme-Konfiguration:** Meine Farbgestaltung basiert auf einem Theme von <a href="https://mysmarthome.gumroad.com/l/ecdstf">My Smart Home<a>, das ich leicht modifiziert habe.
 - **Beispiele und Ressourcen:** Für Inspiration und direkte Nutzung.
 
-Hinweis: Einige Codeschnipsel stammen von **YouTube**, der **Home Assistant Community**, **<a href="https://mysmarthome.gumroad.com/">My Smart Home<a>**  und anderen Quellen.Ich habe versucht, alle Quellen in den YAML-Dateien inklusive Links zu hinterlegen, wo dies möglich war. Credits an die ursprünglichen Autoren!
+<p align="center">
+  <img src="/../main/dark.png" height="1500" title="Dark-Mode"> &emsp; &emsp; 
+  <img src="/../main/light.png" height="1500" title="Light-Mode">
+</p>
+
+> [!NOTE]
+> Einige Codeschnipsel stammen von **YouTube**, der **Home Assistant Community**, **<a href="https://mysmarthome.gumroad.com/">My Smart Home<a>**  und anderen Quellen.Ich habe versucht, alle Quellen in den YAML-Dateien inklusive Links zu hinterlegen, wo dies möglich war. Credits an die ursprünglichen Autoren!
 # 📖 Features
 
 Modulares Design: Jede Karte ist einzeln nutzbar und anpassbar.
