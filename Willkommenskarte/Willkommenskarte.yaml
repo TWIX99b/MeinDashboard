@@ -5,10 +5,11 @@
 # Hauptidee: Home Assistant Community => User rhysb
 # Link: https://community.home-assistant.io/t/mushroom-cards-build-a-beautiful-dashboard-easily-part-1/388590/5993
 #
-# Benötigte Karten:   Stack In Card @RomRider, layout-card @thomasloven, Mushroom @piitaya, TrashCard @idaho,
-                      
-#
-#
+# Benötigte Karten:   Stack In Card @RomRider, Button Card @RomRider, Mushroom @piitaya, TrashCard @idaho,
+#                     card-mod 3 @thomasloven, layout-card @thomasloven, Clock Weather Card @pkissling, 
+#                     Hourly Weather Card @decompil3d, Lovelace Horizon Card @rejuvenate, bar-card,
+#                     Mini Graph Card @kalkih, Compass card @tomvanswam, multiple-entity-row @benct,
+#                     Vertical Stack In Card @ofekashery, Week Planner Card @FamousWolf
 # ------------------------------
 
 
@@ -22,7 +23,7 @@ cards:
     cards:
       - type: custom:mushroom-chips-card  #Benutzerchips: Zeigen die aktuelle Position/Zone der Personen an und Popup für Person
         chips:
-          - type: entity
+          - type: entity                  #Personenkarte 1
             entity: person.PERSON_1
             content_info: none
             use_entity_picture: true      #Profilbild statt Icon anzeigen
@@ -40,9 +41,7 @@ cards:
                         icon_type: entity-picture
             card_mod:
               style: >
-                /* Dynamischer Rahmen um das Profilbild basierend auf der Zone
-                wo sich die Person befindet */
-
+                /* Dynamischer Rahmen um das Profilbild basierend auf der Zone wo sich die Person befindet */
                 ha-card {
                   --chip-background:
                   {% if is_state(config.entity, ['home', 'not_home', 'unknown']) %}
@@ -53,14 +52,14 @@ cards:
                 } 
 
                 /* Animation beim Überfahren mit der Maus */
-
                 ha-card:hover {
                   transform: scale(1.4);
                   transform-origin: top center;
                   z-index: 1;
                   transition: all 1s;
                 }
-          - type: entity
+
+          - type: entity                  #Personenkarte 1
             entity: person.PERSON_2
             content_info: none
             use_entity_picture: true      #Profilbild statt Icon anzeigen
@@ -78,9 +77,7 @@ cards:
                         icon_type: entity-picture
             card_mod:
               style: >
-                /* Dynamischer Rahmen um das Profilbild basierend auf der Zone
-                wo sich die Person befindet */
-
+                /* Dynamischer Rahmen um das Profilbild basierend auf der Zone wo sich die Person befindet */
                 ha-card {
                   --chip-background:
                   {% if is_state(config.entity, ['home', 'not_home', 'unknown']) %}
@@ -91,13 +88,13 @@ cards:
                 } 
 
                 /* Animation beim Überfahren mit der Maus */
-
                 ha-card:hover {
                   transform: scale(1.4);
                   transform-origin: top center;
                   z-index: 1;
                   transition: all 1s;
                 }
+
         alignment: end                    #Positioniert die Chips rechtsbündig
         card_mod:
           style: |
@@ -112,7 +109,7 @@ cards:
               width: fit-content;
               transition: all 0s;
             }
-      - type: custom:button-card          #Wetteranzeige: Zeigt die aktuelle Temperatur, ein dynamisches Icon und ist ein Button für das Popup
+      - type: custom:button-card          #Wetteranzeige: Zeigt die aktuelle Temperatur, ein dynamisches Icon und ein Button für das Popup
         label: >
           [[[return states[ 'sensor.AUßENTEMPERATUR'].state
           + '<span style="font-size:0.6em">°C</span>']]]
@@ -453,7 +450,7 @@ cards:
                         color_thresholds_transition: hard
                       - type: custom:mini-graph-card
                         entities:
-                          - entity: sensor.innentemperatur
+                          - entity: sensor.INNENTEMPERATUR
                         group: false
                         line_width: 6
                         hour24: true
@@ -482,7 +479,7 @@ cards:
                       - type: custom:mini-graph-card
                         entities:
                           - entity: >-
-                              sensor.g_terrasse_wetterstation_windgeschwindigkeit
+                              sensor.WINDGESCHWINDIGKEIT_AUßEN
                         line_width: 6
                         hour24: true
                         points_per_hour: 8
@@ -503,7 +500,7 @@ cards:
                             value: 0
                       - type: custom:compass-card
                         indicator_sensors:
-                          - sensor: sensor.g_terrasse_wetterstation_windrichtung
+                          - sensor: sensor.WINDRICHTUNG_AUßEN
                             state_value:
                               show: true
                             state_units:
@@ -515,7 +512,7 @@ cards:
                               color: orange
                         value_sensors:
                           - sensor: >-
-                              sensor.g_terrasse_wetterstation_windgeschwindigkeit
+                              sensor.WINDGESCHWINDIGKEIT_AUßEN
                         compass:
                           north:
                             show: true
@@ -523,7 +520,7 @@ cards:
                     cards:
                       - type: custom:mini-graph-card
                         entities:
-                          - entity: sensor.niederschlag_regen_taglich
+                          - entity: sensor.NIEDERSCHLAG_TÄGLICH
                             state_adaptive_color: true
                         line_width: 1
                         name: Niederschlag
@@ -574,11 +571,11 @@ cards:
                           - color: "#109e48"
                             value: 0
                         entities:
-                          - entity: sensor.g_terrasse_wetterstation_beleuchtungsstarke
+                          - entity: sensor.UV_AUßEN
                             name: UV Index
                             state_adaptive_color: true
                           - color: gray
-                            entity: sensor.g_terrasse_wetterstation_sonnenscheindauer
+                            entity: sensor.SONNENSCHEINDAUER
                             name: Day
                             show_legend: false
                             show_line: false
@@ -609,7 +606,7 @@ cards:
                 padding: 0px !important;
                 transition: all 0s;
               }
-  - type: horizontal-stack
+  - type: horizontal-stack                #Begrüßungsnachricht: Dynamisch basierend auf der Uhrzeit
     cards:
       - type: custom:mod-card
         card:
@@ -626,19 +623,20 @@ cards:
               Willkommen! Nachteule unterwegs?
             {% endif %}
           subtitle: |
-            {{ user.split(' ')[0] }}
+            {{ user.split(' ')[0] }}      /*Zeigt den Vornamen des Nutzers*/
           alignment: start
         card_mod:
           style:
             mushroom-title-card$: |
-              /* Style greeting */
+              /* Anpassung des Designs der Begrüßungsnachricht */
               .title {
                 font-family: "Caveat";
                 --title-font-size: 24px;
                 --title-font-weight: var(--mush-subtitle-font-weight, light);
                 color: var(--secondary-text-color) !important;
               }
-              /* Style name */
+
+              /* Anpassung des Namens */
               .subtitle {
                 font-family: "Caveat";
                 --subtitle-font-size: 30px;
@@ -646,12 +644,13 @@ cards:
                 color: var(--primary-text-color) !important;
                 padding-left: 12px;
               }
-              /* Set spacing around greeting */
+
+              /* Abstände */
               .header {
                 --title-padding: 0px 12px 18px;
                 --title-spacing: 8px;
               }
-  - type: conditional
+  - type: conditional                     #Bedingte Anzeige von Wetterwarnungen
     conditions:
       - condition: state
         entity: sensor.dresden_klotzsche_aktuelle_warnstufe
@@ -690,7 +689,7 @@ cards:
                   padding: 15px;
                   background: none;
                   }
-  - type: horizontal-stack
+  - type: horizontal-stack                #Navigationszeile
     cards:
       - type: custom:mushroom-template-card
         secondary: Alarmo
@@ -703,23 +702,23 @@ cards:
         card_mod:
           style: |
             ha-card {
-              /* Set size and spacing of button */
+              /* Anpassung der Größe und Abstands des Buttons */
               width: 64px;
               --spacing: 8px;
               padding-bottom: calc(var(--spacing) * 1.618) !important;
 
-              /* Styling of button */
+              /* Styles des Buttons */
               background: var(--card-background-color) !important;
               box-shadow: var(--ha-card-box-shadow) !important;
               border-radius: calc(var(--ha-card-border-radius, 12px) * 2) !important;
 
-              /* Center button */
+              /* Zentrieren des Buttons */
               margin-left: auto;
               margin-right: auto;
               transition: all 0s;
             }
 
-            /* Add subtle color on hover */
+            /* Abdunkeln des Buttons beim überhovern */
             ha-card:hover {
               background: color-mix(in srgb, var(--blue) 20%, var(--card-background-color)) !important;
             }
@@ -735,23 +734,23 @@ cards:
         card_mod:
           style: |
             ha-card {
-              /* Set size and spacing of button */
+              /* Anpassung der Größe und Abstands des Buttons */
               width: 64px;
               --spacing: 8px;
               padding-bottom: calc(var(--spacing) * 1.618) !important;
 
-              /* Styling of button */
+              /* Styles des Buttons */
               background: var(--card-background-color) !important;
               box-shadow: var(--ha-card-box-shadow) !important;
               border-radius: calc(var(--ha-card-border-radius, 12px) * 2) !important;
 
-              /* Center button */
+              /* Zentrieren des Buttons */
               margin-left: auto;
               margin-right: auto;
               transition: all 0s;
             }
 
-            /* Add subtle color on hover */
+            /* Abdunkeln der Button beim überhovern */
             ha-card:hover {
               background: color-mix(in srgb, var(--yellow) 20%, var(--card-background-color)) !important;
             }
@@ -766,23 +765,23 @@ cards:
         card_mod:
           style: |
             ha-card {
-              /* Set size and spacing of button */
+              /* Anpassung der Größe und Abstands des Buttons */
               width: 64px;
               --spacing: 8px;
               padding-bottom: calc(var(--spacing) * 1.618) !important;
 
-              /* Styling of button */
+              /* Styles des Buttons */
               background: var(--card-background-color) !important;
               box-shadow: var(--ha-card-box-shadow) !important;
               border-radius: calc(var(--ha-card-border-radius, 12px) * 2) !important;
 
-              /* Center button */
+              /* Zentrieren des Buttons */
               margin-left: auto;
               margin-right: auto;
               transition: all 0s;
             }
 
-            /* Add subtle color on hover */
+            /* Abdunkeln der Button beim überhovern */
             ha-card:hover {
               background: color-mix(in srgb, var(--green) 20%, var(--card-background-color)) !important;
             }
@@ -797,23 +796,23 @@ cards:
         card_mod:
           style: |
             ha-card {
-              /* Set size and spacing of button */
+              /* Anpassung der Größe und Abstands des Buttons */
               width: 64px;
               --spacing: 8px;
               padding-bottom: calc(var(--spacing) * 1.618) !important;
 
-              /* Styling of button */
+              /* Styles des Buttons */
               background: var(--card-background-color) !important;
               box-shadow: var(--ha-card-box-shadow) !important;
               border-radius: calc(var(--ha-card-border-radius, 12px) * 2) !important;
 
-              /* Center button */
+              /* Zentrieren des Buttons */
               margin-left: auto;
               margin-right: auto;
               transition: all 0s;
             }
 
-            /* Add subtle color on hover */
+            /* Abdunkeln der Button beim überhovern */
             ha-card:hover {
               background: color-mix(in srgb, var(--red) 20%, var(--card-background-color)) !important;
             }
@@ -828,26 +827,26 @@ cards:
         card_mod:
           style: |
             ha-card {
-              /* Set size and spacing of button */
+              /* Anpassung der Größe und Abstands des Buttons */
               width: 64px;
               --spacing: 8px;
               padding-bottom: calc(var(--spacing) * 1.618) !important;
 
-              /* Styling of button */
+              /* Styles des Buttons */
               background: var(--card-background-color) !important;
               box-shadow: var(--ha-card-box-shadow) !important;
               border-radius: calc(var(--ha-card-border-radius, 12px) * 2) !important;
 
-              /* Center button */
+              /* Zentrieren des Buttons */
               margin-left: auto;
               margin-right: auto;
               transition: all 0s;
             }
-            /* Add subtle color on hover */
+            /* Abdunkeln der Button beim überhovern */
             ha-card:hover {
               background: color-mix(in srgb, var(--grey-color) 20%, var(--card-background-color)) !important;
             }
-  - type: custom:vertical-stack-in-card
+  - type: custom:vertical-stack-in-card   #Müllabholung als Chips
     cards:
       - event_grouping: false
         drop_todayevents_from: "08:00:00"
@@ -888,38 +887,39 @@ cards:
         layout: default
         type: custom:trash-card
         entities:
-          - calendar.ics
+          - calendar.MÜLL
         filter_events: true
         use_summary: false
         hide_time_range: false
     card_mod:
       style: |
+        /* Entfernen des Hintergrunds und hinzufügen einen unsichtbaren Rahmens der Vertical-Stack-in-Card */
         ha-card {
           background: none;
           padding: 15px
         }
-  - type: custom:layout-card
+  - type: custom:layout-card              #Kalenderansicht: Zeigt kommende Ereignisse und Aufgaben
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: 85% 15%
+      grid-template-columns: 85% 15%      #Hauptkalender links, kleiner Button rechts
     cards:
       - type: custom:week-planner-card
-        days: 1
+        days: 1                           #Nur Einträge von heute
         updateInterval: 300
         calendars:
-          - entity: calendar.geburtstage
+          - entity: calendar.KALENDER_1
             color: "#DF01D7"
-          - entity: calendar.ics
+          - entity: calendar.KALENDER_2
             color: "#585858"
-          - entity: calendar.apager_dienstplan
+          - entity: calendar.KALENDER_3
             color: "#DF0101"
-          - entity: calendar.feuerwehr_dirk
+          - entity: calendar.KALENDER_4
             color: "#DF0101"
-          - entity: calendar.arbeit_niklas
+          - entity: calendar.KALENDER_5
             color: "#359e11"
-          - entity: calendar.familie
+          - entity: calendar.KALENDER_6
             color: "#FF6347"
-          - entity: calendar.privat
+          - entity: calendar.KALENDER_7
             color: "#7EB0D5"
         compact: false
         noCardBackground: true
@@ -928,7 +928,7 @@ cards:
         showLocation: true
         locationLink: https://www.google.com/maps/search/?api=1&query=
         locale: de
-        texts:
+        texts:                            #Anpassung der Standardtexte auf Deutsch
           noEvents: Keine Einträge
           fullDay: Ganzer Tag
           today: Heute
@@ -939,7 +939,7 @@ cards:
             display: none !important;
             }
               
-      - type: custom:button-card
+      - type: custom:button-card            #Button für Bubble-Card Popup Kalender
         icon: mdi:calendar
         tap_action:
           action: navigate
@@ -950,19 +950,19 @@ cards:
               height: 80px;
               background: none
             }
-  - type: conditional
+  - type: conditional                     #Bedingte Anzeige von Feuchtigbeitswarnung fürs Badezimmer
     conditions:
       - condition: numeric_state
-        entity: sensor.eg_bad_feuchtigkeitssensor_feuchtigkeit
+        entity: sensor.FEUCHTIGKEIT_BAD
         above: 60
     card:
       type: custom:mushroom-template-card
       primary: >-
         WARNUNG: im Bad ist die Luftfeuchtigkeit bei {{
-        states('sensor.eg_bad_feuchtigkeitssensor_feuchtigkeit') }}%
+        states('sensor.FEUCHTIGKEIT_BAD') }}%
       secondary: >-
         Öffne das Fenster! Draußen ist die Luftfeuchtigkeit bei {{
-        states('sensor.g_terrasse_wetterstation_luftfeuchtigkeit') }}%!
+        states('sensor.FEUCHTIGKEIT_AUßEN') }}%!
       icon: mdi:alert
       icon_color: red
       card_mod:
@@ -970,16 +970,16 @@ cards:
           ha-card {
             background: none;
           }
-card_mod:
+card_mod:                                 #Anpassung der Hauptkarte
   style: |
     ha-card {
-      /* Set padding of card */
+      /* Umrandung der Hauptkarte */
       padding: 28px 8px 12px;
 
-      /* Move card up to match header card */
+      /* Verschieben der Karte nach oben (leichtes überlappen des Headers) */
       margin-top: -28px;
 
-      /* Styling of card background */
+      /* Anpassung des Hintergrunds */
       background: var(--gray100) !important;
       border-radius: 0px 0px 28px 28px;
 
