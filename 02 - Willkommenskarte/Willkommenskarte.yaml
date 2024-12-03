@@ -1,16 +1,16 @@
-# ------------------------------
-# Willkommenskarte für Home Assistant Dashboard
-# Beschreibung: Diese YAML-Datei erstellt ein benutzerdefiniertes Dashboard 
-# mit einer Willkommensnachricht, Wetterdaten, Benutzerstatus und mehr.
-# Hauptidee: Home Assistant Community => User rhysb
-# Link: https://community.home-assistant.io/t/mushroom-cards-build-a-beautiful-dashboard-easily-part-1/388590/5993
-#
-# Benötigte Karten:   Stack In Card @RomRider, Button Card @RomRider, Mushroom @piitaya, TrashCard @idaho,
-#                     card-mod 3 @thomasloven, layout-card @thomasloven, Clock Weather Card @pkissling, 
-#                     Hourly Weather Card @decompil3d, Lovelace Horizon Card @rejuvenate, bar-card,
-#                     Mini Graph Card @kalkih, Compass card @tomvanswam, multiple-entity-row @benct,
-#                     Vertical Stack In Card @ofekashery, Week Planner Card @FamousWolf
-# ------------------------------
+# ---------------------------------------------------------------------------------------------------------------- #
+# Willkommenskarte für Home Assistant Dashboard                                                                    #
+# Beschreibung: Diese YAML-Datei erstellt ein benutzerdefiniertes Dashboard                                        #
+# mit einer Willkommensnachricht, Wetterdaten, Benutzerstatus und mehr.                                            #
+# Hauptidee: Home Assistant Community => User rhysb                                                                #
+# Link: https://community.home-assistant.io/t/mushroom-cards-build-a-beautiful-dashboard-easily-part-1/388590/5993 #
+#                                                                                                                  #
+# Benötigte Karten:   Stack In Card @RomRider, Button Card @RomRider, Mushroom @piitaya, TrashCard @idaho,         #
+#                     card-mod 3 @thomasloven, layout-card @thomasloven, Clock Weather Card @pkissling,            #
+#                     Hourly Weather Card @decompil3d, Lovelace Horizon Card @rejuvenate, bar-card,                #
+#                     Mini Graph Card @kalkih, Compass card @tomvanswam, multiple-entity-row @benct,               #
+#                     Vertical Stack In Card @ofekashery, Week Planner Card @FamousWolf                            #
+# ---------------------------------------------------------------------------------------------------------------- #
 
 
 type: custom:stack-in-card

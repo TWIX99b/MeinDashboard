@@ -1,0 +1,527 @@
+# ---------------------------------------------------------------------------------------------------------------- #
+# Interaktive Chips-Karte für das Dashboard                                                                        #
+# Beschreibung: Diese Konfiguration zeigt verschiedene Chips, die mit Aktionen, Statusanzeigen                     #
+# und Benachrichtigungen verknüpft sind.                                                                           #
+# Hauptidee: Home Assistant Community => User rhysb                                                                #
+# Link: https://community.home-assistant.io/t/mushroom-cards-build-a-beautiful-dashboard-easily-part-1/388590/5993 #
+#                                                                                                                  #
+# Benötigte Karten:  Stack In Card @RomRider, Mushroom @piitaya, card-mod 3 @thomasloven, layout-card @thomasloven #
+# ---------------------------------------------------------------------------------------------------------------- #
+
+
+type: custom:stack-in-card
+cards:
+  - type: custom:mushroom-chips-card      #Immer sichtbare Chips (Hauptsteuerung)
+    chips:
+      - type: template                    #Umschaltung in den Kiosk-Mode (Fullscreen)
+        entity: input_boolean.kiosk_mode  #Helfer zum Ein-/Ausblenden vom Kiosk-Mode (Fullscreen)
+        icon: mdi:fullscreen
+        icon_color: green
+        tap_action:
+          action: toggle
+        hold_action:
+          action: none
+        card_mod:
+          style: |
+            /* Entfernt den Hintergrund des Chips */
+            ha-card {
+              --chip-box-shadow: none;
+              --chip-background: none;
+              --chip-border-width: 0;
+            }
+      - type: template                    #Systemdatum anzeigen (in deutscher Sprache)
+        content: >-
+          {{ now().strftime("%A, %-d %B")  
+          |replace('Monday','Montag')
+          |replace('Tuesday','Dienstag') 
+          |replace('Wednesday','Mittwoch')
+          |replace('Thursday','Donnerstag') 
+          |replace('Friday','Freitag')
+          |replace('Saturday','Samstag') 
+          |replace('Sunday','Sonntag')
+
+          |replace('January','Januar') 
+          |replace('February','Februar')
+          |replace('March','März') 
+          |replace('April','April')
+          |replace('May','Mai') 
+          |replace('June','Juni') 
+          |replace('July','Juli')
+          |replace('August','August') 
+          |replace('September','September')
+          |replace('October','Oktober') 
+          |replace('November','November')
+          |replace('December','Dezember') 
+          }}
+        card_mod:
+          style: |
+            /* Entfernt den Hintergrund des Chips */
+            ha-card {
+              --chip-box-shadow: none;
+              --chip-background: none;
+              --chip-border-width: 0;
+            }
+      - type: template                    #Aufklappen der Benachrichtigungen
+        entity: input_boolean.notifications #Helfer zum Ein-/Ausblenden von Benachrichtigungen
+        icon: mdi:bell
+        tap_action:
+          action: toggle
+        hold_action:
+          action: none
+        card_mod:
+          style: |
+            /* Entfernt den Hintergrund des Chips */
+            ha-card {
+              --chip-box-shadow: none;
+              --chip-background: none;
+              --chip-border-width: 0;
+            }
+    alignment: justify                    #Chips gleichmäßig verteilen
+  - type: conditional                     #Bedingte Chips: Nur sichtbar, wenn Benachrichtigungen aktiv sind
+    conditions:
+      - entity: input_boolean.notifications
+        state: "on"                       #Aktiviert, wenn der Helfer "notifications" eingeschaltet ist
+    card:
+      type: custom:mushroom-chips-card
+      chips:
+        - type: template                  #Alarmstatus anzeigen und Popup für Mushroom Alarm Control Panel
+          entity: alarm_control_panel.alarmo
+          icon: mdi:shield-home
+          icon_color: |-
+            {% set alarm_status = states(entity) %}
+            {% if alarm_status == 'armed_home' %}
+              green
+            {% elif alarm_status == 'disarmed' %}
+              blue
+            {% elif alarm_status == 'arming' %}
+               yellow
+            {% elif alarm_status == 'triggered' %}
+               red
+            {% endif %} 
+          tap_action:
+            action: fire-dom-event
+            browser_mod:
+              service: browser_mod.popup
+              data:
+                title: Alarm
+                content:
+                  type: custom:mushroom-alarm-control-panel-card
+                  entity: alarm_control_panel.alarmo
+                  states:                 #Liste der möglichen Alarmzustände
+                    - armed_home
+                    - armed_away
+                    - armed_vacation
+          card_mod:
+            style: |
+              /* Entfernt den Hintergrund des Chips */
+              ha-card {
+                --chip-box-shadow: none;
+                --chip-background: none;
+                --chip-border-width: 0;
+              }
+          hold_action:
+            action: none
+        - type: template                  #Türstatus anzeigen (Wohnungseingang)
+          entity: binary_sensor.EINGANGSTÜR
+          icon: "{{ 'mdi:lock' if is_state(entity, 'off') else 'mdi:lock-open' }}"   #Dynamisches Icon basierend auf dem Türstatus
+          icon_color: "{{ 'green' if is_state(entity, 'off') else 'red' }}"          #Grün für "geschlossen", Rot für "offen"
+          tap_action:
+            action: fire-dom-event
+            browser_mod:
+              service: browser_mod.popup
+              data:
+                title: Wohnungseingang
+                content:
+                  type: custom:stack-in-card
+                  cards:
+                    - type: custom:layout-card #Kameraansichten der Eingangsbereiche
+                      layout_type: masonry
+                      layout: {}
+                      cards:
+                        - camera_view: live
+                          type: picture-entity
+                          show_name: false
+                          show_state: false
+                          entity: camera.TÜRKLINGEL
+                          tap_action:
+                            action: none
+                        - camera_view: live
+                          type: picture-entity
+                          show_name: false
+                          show_state: false
+                          entity: camera.EINGANGSTÜR
+                          tap_action:
+                            action: none
+                        - camera_view: auto
+                          type: picture-entity
+                          show_name: false
+                          show_state: false
+                          entity: camera.GARTEN
+                          tap_action:
+                            action: none
+                    - type: custom:mushroom-lock-card
+                      entity: binary_sensor.EINGANGSTÜR
+                      name: Wohnungseingang
+          card_mod:
+            style: |
+              /* Entfernt den Hintergrund des Chips */
+              ha-card {
+                --chip-box-shadow: none;
+                --chip-background: none;
+                --chip-border-width: 0;
+              }
+        - type: conditional               #Anzeige für eingeschaltete Lichter (Helfer => Gruppe: alle Lichter wird benötigt)
+          conditions:                     #Zeigt den Chip nur, wenn mindestens ein Licht eingeschaltet ist
+            - entity: light.alle_lichter
+              state: "on"
+          chip:
+            type: template
+            icon: mdi:lightbulb
+            entity: light.alle_lichter
+            content: >                    #Zählt alle eingeschaltene Lichter
+              {{ expand(states.light.alle_lichter) | selectattr('state', 'eq',
+              'on') | list | count }}
+            icon_color: amber
+            tap_action:
+              action: fire-dom-event
+              browser_mod:
+                service: browser_mod.popup #Öffnet ein Popup mit den aktiven Lichtern
+                data:
+                  title: Eingeschaltene Lichter
+                  content:
+                    type: custom:auto-entities
+                    filter:
+                      include:
+                        - group: light.alle_lichter
+                          state: "on"     #Nur eingeschaltete Lichter anzeigen
+                          options:
+                            type: custom:mushroom-light-card  #Mushroom-Licht-Karte verwenden
+                            show_brightness_control: true     #Helligkeitssteuerung anzeigen
+                            layout: horizontal
+                            tap_action:
+                              action: toggle                  #Licht per Klick umschalten
+                            use_light_color: true             #Lichtfarbe nutzen
+                        - entity_id: light.alle_lichter
+                          state: "on"
+                          options:
+                            type: custom:mushroom-light-card
+                            layout: horizontal
+                            secondary_info: none
+                            tap_action:
+                              action: toggle
+                            card_mod:
+                              style: |
+                                /* Style & position All Lights button */
+                                ha-card {
+                                  background: none;
+                                }
+                                :host {
+                                  margin: 0px 0px 12px !important;
+                                }
+                      exclude: []
+                    card:
+                      type: custom:layout-card
+                      cards: []
+                      layout_type: masonry
+                    sort:
+                      method: friendly_name                   #Nach Name sortieren
+                  card_mod:
+                    style: |
+                      /* Positionierung und Style des Buttons */
+                      .content {
+                        margin: -6px -4px -6px -4px !important;
+                        --ha-card-border-width: 0;
+                        --ha-card-background: none;
+                        --ha-card-box-shadow: 0;
+                        --masonry-view-card-margin: -4px 0px 0px 0px;
+                      }
+            card_mod:
+              style: |
+                /* Entfernt den Hintergrund des Chips */
+                ha-card {
+                  --chip-box-shadow: none;
+                  --chip-background: none;
+                  --chip-border-width: 0;
+                }
+        - type: conditional               #Anzeige für offene Fenster (Helfer => Gruppe: alle Fenster wird benötigt)
+          conditions:
+            - entity: binary_sensor.alle_fenster
+              state: "on"                 #Zeigt den Chip nur, wenn mindestens ein Fenster geöffnet ist
+          chip:
+            type: template
+            icon_color: blue
+            icon: mdi:window-open
+            entity: binary_sensor.alle_fenster
+            content: >                    #Zählt alle geöffneten Fenster
+              {{ expand(states.binary_sensor.alle_fenster) | selectattr('state',
+              'eq', 'on') | list | count }}   
+            tap_action:
+              action: fire-dom-event
+              browser_mod:
+                service: browser_mod.popup #Popup für geöffnete Fenster
+                data:
+                  title: Geöffnete Fenster
+                  content:
+                    type: custom:auto-entities
+                    filter:
+                      include:
+                        - group: binary_sensor.alle_fenster
+                          state: "on"                         #Nur geöffnete Fenster anzeigen
+                          options:
+                            type: custom:mushroom-entity-card #Mushroom-Entitätskarte
+                            layout: horizontal
+                            secondary_info: last-changed      #Zeigt die letzte Änderung an
+                            tap_action:
+                              action: none
+                            hold_action:
+                              action: none
+                      exclude: [] 
+                    show_empty: false                         #Verbirgt die Karte, wenn keine Fenster offen sind
+                    card:
+                      type: custom:layout-card
+                      cards: []
+                      layout_type: masonry
+                    sort:
+                      method: friendly_name
+                  card_mod:
+                    style: |
+                      /* Positionierung und Style des Buttons */
+                      .content {
+                        margin: -6px -4px -6px -4px !important;
+                        --ha-card-border-width: 0;
+                        --ha-card-background: none;
+                        --ha-card-box-shadow: 0;
+                        --masonry-view-card-margin: -4px 0px 0px 0px;
+                      }
+        - type: conditional               #Anzeige für offene Türen (Helfer => Gruppe: alle Türen wird benötigt)
+          conditions:
+            - entity: binary_sensor.alle_turen
+              state: "on"                 #Zeigt den Chip nur, wenn mindestens eine Tür geöffnet ist
+          chip:
+            type: template
+            entity: binary_sensor.alle_turen
+            content: >                    #Zählt alle geöffneten Türen
+              {{ expand(states.binary_sensor.alle_turen) | selectattr('state',
+              'eq', 'on') | list | count }}
+            icon_color: brown
+            icon: mdi:door-open
+            tap_action:
+              action: fire-dom-event
+              browser_mod:
+                service: browser_mod.popup #Popup für offene Türen
+                data:
+                  title: Offene Türen
+                  content:
+                    type: custom:auto-entities
+                    filter:
+                      include:
+                        - group: binary_sensor.alle_turen
+                          state: "on"                         #Nur offene Türen anzeigen
+                          options:
+                            type: custom:mushroom-entity-card #Mushroom-Entitätskarte
+                            layout: horizontal
+                            secondary_info: last-changed      #Zeigt die letzte Änderung an
+                            icon_color: brown
+                            tap_action:
+                              action: none
+                            hold_action:
+                              action: none
+                      exclude: []
+                    show_empty: false                         #Verbirgt die Karte, wenn keine Türen offen sind
+                    card:
+                      type: custom:layout-card
+                      cards: []
+                      layout_type: masonry
+                    sort:
+                      method: friendly_name
+                  card_mod:
+                    style: |
+                      /* Positionierung und Style des Buttons */
+                      .content {
+                        margin: -6px -4px -6px -4px !important;
+                        --ha-card-border-width: 0;
+                        --ha-card-background: none;
+                        --ha-card-box-shadow: 0;
+                        --masonry-view-card-margin: -4px 0px 0px 0px;
+                      }
+        - type: conditional               #Anzeige für Geräte mit niedriger Batterie
+          conditions:
+            - entity: sensor.devices_with_low_battery
+              state_not: "0"              #Chip erscheint nur, wenn Geräte mit niedriger Batterie vorhanden sind
+          chip:
+            type: template
+            entity: sensor.devices_with_low_battery
+            content: |                    #Anzahl der Geräte mit niedriger Batterie
+              {{ states(config.entity) | int }}
+            icon_color: red
+            icon: mdi:battery-alert
+            tap_action:
+              action: fire-dom-event
+              browser_mod:
+                service: browser_mod.popup #Popup mit Details zu den Geräten
+                data:
+                  title: Leere Batterien
+                  content:
+                    type: custom:auto-entities
+                    filter:
+                      include:
+                        - attributes:
+                            device_class: battery             #Geräte mit Batterieklasse
+                          state: < 30                         #Batteriestand unter 30%
+                          options:
+                            type: custom:mushroom-template-card
+                            primary: "{{ states(entity) }}%"  #Zeigt Batteriestand in %
+                            secondary: "{{ state_attr(entity, 'friendly_name') | title }}"
+                            icon: >
+                              {% set battery_level = (states(entity) | int / 10)
+                              | round(0) | int * 10 %}
+
+                              {% if battery_level == 100 %}
+                                mdi:battery
+                              {% elif battery_level > 0 %}
+                                mdi:battery-{{ battery_level }}
+                              {% else %}
+                                mdi:battery-outline
+                              {% endif %}
+                            icon_color: |-
+                              {% set battery_level = states(entity) | int %}
+                              {% if battery_level > 90 %} 
+                                green
+                              {% elif battery_level > 60 %}
+                                light-green
+                              {% elif battery_level > 50 %}
+                                lime
+                              {% elif battery_level > 40 %}
+                                yellow
+                              {% elif battery_level > 30 %}
+                                amber
+                              {% elif battery_level > 20 %}
+                                orange
+                              {% elif battery_level > 10 %}
+                                deep-orange
+                              {% else %}
+                                red
+                              {% endif %} 
+                            layout: horizontal
+                            tap_action:
+                              action: none
+                            badge_icon: >-
+                              {{ 'mdi:exclamation-thick' if states(entity) | int
+                              < 10 }} 
+                            badge_color: red
+                      exclude: null
+                    show_empty: false
+                    card:
+                      type: custom:layout-card
+                      cards: []
+                      layout_type: masonry
+                    sort:
+                      method: friendly_name
+                  card_mod:
+                    style: |
+                      /* Positionierung und Style des Buttons */
+                      .content {
+                        margin: -6px -4px -6px -4px !important;
+                        --ha-card-border-width: 0;
+                        --ha-card-background: none;
+                        --ha-card-box-shadow: 0;
+                        --masonry-view-card-margin: -4px 0px 0px 0px;
+                      }
+        - type: conditional               #Anzeige für Wasserlecks
+          conditions:
+            - entity: group.water_leak
+              state: "on"                 #Chip erscheint nur, wenn ein Wasserleck erkannt wird
+          chip:
+            type: template
+            icon_color: light-blue
+            icon: mdi:water-alert
+            tap_action:
+              action: more-info
+            entity: group.water_leak
+            card_mod:
+              style: |
+                .content {
+                  animation: blink 1s linear infinite;  /* Blinken, um auf die Warnung aufmerksam zu machen */
+                }
+                @keyframes blink {
+                  50% {opacity: 0;}                     /* Blinken mit halber Deckkraft */
+                }
+        - type: conditional               #Anzeige für Rauchmelder
+          conditions:
+            - entity: binary_sensor.alle_rauchmelder
+              state: "on"                 #Chip erscheint nur, wenn ein Rauchmelder ausgelöst wurde
+          chip:
+            type: template
+            icon_color: red
+            icon: mdi:fire-alert
+            tap_action:
+              action: more-info
+            entity: binary_sensor.alle_rauchmelder
+            card_mod:
+              style: |
+                .content {
+                  animation: blink 1s linear infinite;  /* Blinken, um auf die Warnung aufmerksam zu machen */
+                }
+                @keyframes blink {
+                  50% {opacity: 0;}                     /* Blinken mit halber Deckkraft */
+                }
+      alignment: end
+      card_mod:
+        style: |
+          /* Setze Abstände für Benachrichtigungs-Chips */
+          ha-card {
+            margin: var(--chip-spacing) calc(-1 * var(--chip-spacing)) 0px;
+            transition: all 0s;
+          }
+
+# --------------------------------------
+# Allgemeine Stile für die Karte
+# --------------------------------------
+card_mod:
+  style: |
+    /* Entfernt Styling der Hauptkarte mit den Chips */
+    ha-card {
+      overflow: visible !important;
+      margin-top: -10px;
+      box-shadow: none;
+      border: none;
+      background: none;
+      padding: 12px;
+      transition: all 0s;
+    }
+    /* Macht die Karte sticky, sodass sie beim Scrollen oben fixiert bleibt (funktioniert nicht immer)*/
+    :host {
+      position: sticky;
+      z-index: 4;
+      top: 0px;
+    }
+    /* Pseudo-Element, um das Styling der Karte oben zu verstecken */
+    ha-card:after {
+      content: "";
+      position: fixed;
+      top: 0px;
+      height: {{ '104px' if is_state('input_boolean.menuconsumi', 'on') else '60px' }};
+      width: 100%;
+      max-width: calc(var(--column-max-width) - 2 * 1px - 12px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: -1;[quote="system, post:1, topic:693055, full:true"]
+      background: rgba(var(--rgb-card-background-color), 0);
+      border-radius: 0px 0px var(--ha-card-border-radius, 12px) var(--ha-card-border-radius, 12px);
+    }
+    /* Pseudo-Element für den Hintergrund und andere Kartenelemente */
+    ha-card:before {
+      content: "";
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      height: 100%;
+      width: calc(100% - 2 * var(--ha-card-border-width, 1px));
+      z-index: -1;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: var(--gray100);
+      border-radius: 0px 0px var(--ha-card-border-radius, 12px) var(--ha-card-border-radius, 12px);
+      box-shadow: 20px !important;
+      border: var(--ha-card-border-width, 1px) solid var(--ha-card-border-color, var(--divider-color, #
+    }
