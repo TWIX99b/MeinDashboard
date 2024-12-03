@@ -6,6 +6,7 @@
 # Link: https://community.home-assistant.io/t/mushroom-cards-build-a-beautiful-dashboard-easily-part-1/388590/5993 #
 #                                                                                                                  #
 # Benötigte Karten:  Stack In Card @RomRider, Mushroom @piitaya, card-mod 3 @thomasloven, layout-card @thomasloven #
+#                    auto-entities @thomasloven                                                                    #
 # ---------------------------------------------------------------------------------------------------------------- #
 
 
@@ -13,6 +14,19 @@ type: custom:stack-in-card
 cards:
   - type: custom:mushroom-chips-card      #Immer sichtbare Chips (Hauptsteuerung)
     chips:
+#      - type: action                      #Optimaler Button, um auf die Startseite zurückzukehren => für alle Unteransichten
+#        tap_action:
+#          action: navigate
+#          navigation_path: /dashboard
+#        icon_color: blue
+#        icon: mdi:home-assistant
+#        card_mod:
+#          style: |
+#            ha-card {
+#              --chip-box-shadow: none;
+#              --chip-background: none;
+#              --chip-border-width: 0;
+#            }
       - type: template                    #Umschaltung in den Kiosk-Mode (Fullscreen)
         entity: input_boolean.kiosk_mode  #Helfer zum Ein-/Ausblenden vom Kiosk-Mode (Fullscreen)
         icon: mdi:fullscreen
