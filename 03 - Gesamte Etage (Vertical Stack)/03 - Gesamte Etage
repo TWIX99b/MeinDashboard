@@ -1,0 +1,1920 @@
+type: vertical-stack
+cards:
+  - type: custom:bubble-card
+    card_type: separator
+    styles: |-
+      .bubble-line {
+        background: var(--active-small);
+        opacity: 0.2;
+      }
+    card_mod:
+      style: |
+        .bubble-line {
+          margin: 18px 14px 0px 0px;
+        }
+  - type: custom:mushroom-title-card
+    title: Obergeschoss
+    subtitle: >-
+      {% set count = expand(states.light.licht_obergeschoss) |
+      selectattr('state', 'eq', 'on') | list | count %}
+        {% if count == 0 %}
+          Wow, alle Lichter aus. Wie sparsam!
+        {% elif count == 1 %}
+          Ein Licht brennt. Revolutionär.
+        {% else %}
+          Es sind aktuell {{ count }} Lichter an. Party im Obergeschoss?
+        {% endif %}
+    alignment: center
+    title_tap_action:
+      action: none
+    subtitle_tap_action:
+      action: none
+  - type: vertical-stack
+    cards:
+      - type: custom:stack-in-card
+        card_mod:
+          style: |
+            ha-card {
+              background: none;
+            }
+        cards:
+          - type: custom:layout-card
+            layout_type: custom:grid-layout
+            layout:
+              grid-template-columns: auto 1fr
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Stube
+                card_mod:
+                  style: |
+                    ha-card {
+                      max-width: 100%;
+                      padding: 8px 0;
+                      --ha-card-background: none;
+                      --ha-card-box-shadow: none;
+                      --ha-card-border-width: 0;
+                      --card-primary-font-weight: bold;
+                      --card-primary-font-size: 16px;
+                    }
+                tap_action:
+                  action: fire-dom-event
+                  browser_mod:
+                    service: browser_mod.popup
+                    data:
+                      title: Stube
+                      content:
+                        type: vertical-stack
+                        cards:
+                          - type: custom:button-card
+                            styles:
+                              grid:
+                                - grid-template-areas: "\"temp chip\""
+                                - grid-template-columns: 1fr auto
+                              card:
+                                - padding: 24px
+                                - margin-bottom: 15px
+                                - margin-top: "-10px"
+                              custom_fields:
+                                graph:
+                                  - position: absolute
+                                  - width: 100%
+                                  - left: 0
+                                  - bottom: 0
+                                temp:
+                                  - justify-self: start
+                                  - text-align: left
+                                  - font-size: 40px
+                                  - color: black
+                                  - line-height: 50px
+                                  - font-weight: 500
+                                  - padding: 12px 0 0 0
+                                  - color: var(--gray800)
+                                chip:
+                                  - position: absolute
+                                  - top: 10px
+                                  - right: 10px
+                                  - padding: 4px 8px
+                                  - display: flex
+                                  - align-items: center
+                                  - height: 20px
+                            variables:
+                              var_temp: >
+                                [[[ return
+                                Math.round((states['sensor.og_stube_temperatur'].state)*10)/10
+                                + ' °C' ]]]
+                              var_hum: >
+                                [[[  return '<span style="font-size:0.3em">' +
+                                '<ha-icon icon="mdi:water-percent" style="width:
+                                16px; height: 16px; color: var(--blue);
+                                margin-right: 2px;"></ha-icon>' + 
+                                Math.round((states['sensor.og_stube_luftsensor_luftfeuchtigkeit'].state)*10)/10
+                                + ' %</span>'  ]]]
+                              var_pm2: >
+                                [[[  return '<span style="font-size:0.3em">' +
+                                '<ha-icon icon="mdi:weather-dust" style="width:
+                                16px; height: 16px; color: var(--orange);
+                                margin-right: 4px;"></ha-icon>' +
+                                Math.round((states['sensor.og_stube_luftsensor_pm2_5'].state)*10)/10
+                                + ' µg/m³</span>'  ]]]
+                            custom_fields:
+                              temp: >
+                                [[[ return `${variables.var_temp}
+                                ${variables.var_hum} ${variables.var_pm2}` ]]]
+                              graph:
+                                card:
+                                  type: custom:mini-graph-card
+                                  entities:
+                                    - entity: sensor.og_stube_temperatur
+                                  line_width: 0
+                                  height: 100
+                                  show:
+                                    icon: false
+                                    name: false
+                                    state: false
+                                    legend: false
+                                    labels: false
+                                  color_thresholds:
+                                    - value: -20
+                                      color: "#00008B"
+                                    - value: -10
+                                      color: "#0000FF"
+                                    - value: 0
+                                      color: "#00BFFF"
+                                    - value: 10
+                                      color: "#00FFFF"
+                                    - value: 15
+                                      color: "#7FFF00"
+                                    - value: 20
+                                      color: "#FFFF00"
+                                    - value: 25
+                                      color: "#FFA500"
+                                    - value: 30
+                                      color: "#FF4500"
+                                    - value: 35
+                                      color: "#FF0000"
+                                    - value: 40
+                                      color: "#8B0000"
+                                  card_mod:
+                                    style: |
+                                      ha-card {
+                                        border_style: none;
+                                        background: none;
+                                      }
+                              chip:
+                                card:
+                                  type: custom:mushroom-chips-card
+                                  chips:
+                                    - type: conditional
+                                      conditions:
+                                        - condition: state
+                                          entity: binary_sensor.og_stube_rauchmelder_smoke
+                                          state_not: "off"
+                                      chip:
+                                        type: template
+                                        icon_color: red
+                                        icon: mdi:fire-alert
+                                        tap_action:
+                                          action: more-info
+                                        entity: binary_sensor.og_stube_rauchmelder_smoke
+                                        card_mod:
+                                          style: |
+                                            .content {
+                                              animation: blink 1s linear infinite;
+                                            }
+                                            @keyframes blink {
+                                              50% {opacity: 0;}
+                                            }
+                                    - type: template
+                                      icon: >-
+                                        {% if
+                                        is_state('binary_sensor.og_stube_tursensor_wintergarten',
+                                        'off') %}
+                                          mdi:door-closed
+                                        {% else %}
+                                          mdi:door-open
+                                        {% endif %}
+                                      content: Wintergarten
+                                      icon_color: >-
+                                        {% if
+                                        is_state('binary_sensor.og_stube_tursensor_wintergarten',
+                                        'off') %}
+                                          green
+                                        {% else %}
+                                          red
+                                        {% endif %}
+                                      tap_action:
+                                        action: none
+                                      entity: >-
+                                        binary_sensor.og_stube_tursensor_wintergarten
+                                    - type: conditional
+                                      conditions:
+                                        - condition: state
+                                          entity: binary_sensor.og_stube_fenstersensor
+                                          state_not: "off"
+                                      chip:
+                                        type: template
+                                        icon_color: blue
+                                        icon: mdi:window-open-variant
+                                        tap_action:
+                                          action: none
+                                        entity: binary_sensor.og_stube_fenstersensor
+                                    - type: conditional
+                                      conditions:
+                                        - entity: light.og_stube_licht
+                                          state: "on"
+                                      chip:
+                                        type: template
+                                        icon: mdi:lightbulb
+                                        entity: light.og_stube_licht
+                                        content: >
+                                          {{ expand(states.light.og_stube_licht) |
+                                          selectattr('state', 'eq', 'on') | list |
+                                          count }}
+                                        icon_color: amber
+                                  alignment: end
+                                  card_mod:
+                                    style: |
+                                      ha-card {
+                                        --chip-box-shadow: none;
+                                        --chip-background: none;
+                                        --chip-border-width: 0;
+                                        margin: 6px;
+                                      }
+                          - type: custom:mushroom-title-card
+                            title: ""
+                            subtitle: Lampen & Steckdosen
+                          - type: custom:mushroom-light-card
+                            entity: light.og_stube_sofa_licht
+                            name: Sofa
+                            show_brightness_control: true
+                            show_color_temp_control: true
+                            show_color_control: true
+                            layout: horizontal
+                            collapsible_controls: true
+                            use_light_color: true
+                            fill_container: false
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+                          - type: custom:mushroom-light-card
+                            entity: light.og_stube_sofa_stehlampe
+                            name: Stehlampe
+                            show_brightness_control: true
+                            show_color_temp_control: true
+                            show_color_control: true
+                            layout: horizontal
+                            collapsible_controls: true
+                            use_light_color: true
+                            fill_container: false
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+                          - type: custom:mushroom-light-card
+                            entity: light.og_stube_schreibtisch
+                            name: Schreibtisch Niklas
+                            show_brightness_control: true
+                            show_color_temp_control: true
+                            show_color_control: true
+                            layout: horizontal
+                            collapsible_controls: true
+                            use_light_color: true
+                            fill_container: false
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+                          - type: custom:mushroom-entity-card
+                            entity: switch.pc_niklas
+                            name: Computer Niklas
+                            icon: fas:computer
+                            layout: horizontal
+                            tap_action:
+                              confirmation: true
+                              action: toggle
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+                          - type: custom:mushroom-light-card
+                            entity: light.og_stube_schreibtisch_sandra_licht
+                            name: Schreibtisch Sandra
+                            show_brightness_control: true
+                            show_color_temp_control: true
+                            show_color_control: true
+                            layout: horizontal
+                            collapsible_controls: true
+                            use_light_color: true
+                            fill_container: false
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+                          - type: custom:mushroom-entity-card
+                            entity: switch.og_stube_schreibtisch_sandra_steckdose_pc
+                            name: Computer Sandra
+                            icon: fas:computer
+                            layout: horizontal
+                            tap_action:
+                              confirmation: true
+                              action: toggle
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+                          - type: custom:mushroom-entity-card
+                            entity: button.og_stube_katzenfutter_futtern
+                            name: Katzen füttern?
+                            icon: phu:aqara-pet-feeder
+                            layout: horizontal
+                            icon_color: disabled
+                            secondary_info: none
+                            tap_action:
+                              action: toggle
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                }
+                          - type: custom:mushroom-title-card
+                            title: ""
+                            subtitle: Thermostat & Heizung
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  margin-bottom: -20px;
+                                }
+                          - type: custom:simple-thermostat
+                            entity: climate.og_stube_heizungsthermostat
+                            header:
+                              name: false
+                              icon: true
+                              faults:
+                                - entity: binary_sensor.og_stube_fenstersensor
+                                  icon: mdi:window-open
+                                - entity: >-
+                                    binary_sensor.og_stube_heizungsthermostat_batterie_leer
+                                  icon: mdi:battery-charging-outline
+                            layout:
+                              mode:
+                                names: true
+                                icons: true
+                                headings: true
+                              step: row
+                            decimals: 1
+                            hide:
+                              temperature: true
+                              state: true
+                            sensors:
+                              - entity: sensor.og_stube_heizungsthermostat_temperatur
+                                icon: mdi:thermometer-lines
+                              - entity: climate.og_stube_heizungsthermostat
+                                icon: mdi:power-cycle
+                            control:
+                              hvac:
+                                _name: Modus
+                                "off":
+                                  name: AUS
+                                auto:
+                                  name: Auto
+                                heat:
+                                  name: Manuell
+                                  icon: mdi:hand-pointing-up
+                              preset:
+                                _name: Profil
+                                boost:
+                                  name: Boost
+                                  icon: mdi:radiator
+                                none: false
+                                week_program_1:
+                                  name: Zuhause
+                                  icon: mdi:home-account
+                                week_program_2:
+                                  name: Arbeit
+                                  icon: phu:desktop-computer
+                                week_program_3:
+                                  name: Abgesenkt
+                                  icon: mdi:snowflake-thermometer
+                                week_program_4: false
+                                week_program_5: false
+                                week_program_6: false
+                            card_mod:
+                              style: |
+                                .modes.heading .mode-title {
+                                  min-width: 50px;
+                                  display: inline-block;
+                                }
+                                ha-card {
+                                background: none;
+                                }
+                                .modes.heading .mode-item {
+                                  border-radius: 28px;
+                                }
+                          - type: custom:mushroom-title-card
+                            title: ""
+                            subtitle: Kamera
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  margin-bottom: 5px;
+                                }
+                          - show_state: false
+                            show_name: false
+                            camera_view: live
+                            type: picture-entity
+                            entity: camera.stube_klar
+                            camera_image: camera.stube_klar
+                            tap_action:
+                              action: none
+                            hold_action:
+                              action: none
+              - type: custom:bubble-card
+                card_type: separator
+                card_layout: large
+                sub_button:
+                  - entity: binary_sensor.og_stube_fenstersensor
+                    show_background: true
+                    show_state: false
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: false
+                    tap_action:
+                      action: none
+                  - entity: sensor.og_stube_luftsensor_pm2_5
+                    show_background: true
+                    show_state: true
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: true
+                    tap_action:
+                      action: none
+                  - entity: sensor.og_stube_luftsensor_luftfeuchtigkeit
+                    show_background: true
+                    show_state: true
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: false
+                    tap_action:
+                      action: none
+                  - entity: sensor.og_stube_temperatur
+                    show_background: true
+                    show_state: true
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: false
+                    tap_action:
+                      action: none
+                styles: |-
+                  .bubble-sub-button-1 {
+                    display: ${hass.states['binary_sensor.og_stube_fenstersensor'].state === 'on' ? '' : 'none'} !important;
+                  }
+                  .bubble-sub-button-2 {
+                    background-color: ${hass.states['sensor.og_stube_luftsensor_pm2_5'].state === 'unavailable' ? 'var(--purple)' :
+                                      hass.states['sensor.og_stube_luftsensor_pm2_5'].state >= 200 ? 'var(--red)' :
+                                      hass.states['sensor.og_stube_luftsensor_pm2_5'].state >= 75 ? 'var(--yellow)' :
+                                      'transparent'} !important;
+                  }
+                  .bubble-sub-button-3 {
+                    background-color: ${hass.states['sensor.og_stube_luftsensor_luftfeuchtigkeit'].state === 'unavailable' ? 'var(--purple)' :
+                                      hass.states['sensor.og_stube_luftsensor_luftfeuchtigkeit'].state >= 80 ? 'var(--red)' :
+                                      hass.states['sensor.og_stube_luftsensor_luftfeuchtigkeit'].state >= 60 ? 'var(--yellow)' :
+                                      'transparent'} !important;
+                  }
+                  .bubble-sub-button-4 {
+                    background-color: ${hass.states['sensor.og_stube_temperatur'].state === 'unavailable' ? 'var(--purple)' :
+                                      hass.states['sensor.og_stube_temperatur'].state >= 28 ? 'var(--red)' :
+                                      hass.states['sensor.og_stube_temperatur'].state >= 23 ? 'var(--yellow)' :
+                                      hass.states['sensor.og_stube_temperatur'].state >= 17 ? 'transparent' :
+                                      'var(--blue)'} !important;
+                  }
+                  .bubble-line {
+                    background: var(--active-small);
+                    opacity: 0.2;
+                    margin: 0;
+                    padding: 0;
+                  }
+                  .bubble-sub-button {
+                    font-size: 12px;
+                  }
+                card_mod:
+                  style: |
+                    ha-card {
+                      max-width: 100%;
+                      width: 100%;
+                      overflow: hidden;
+                      display: inline-block;
+                      padding: 0;
+                    }
+                icon: ""
+      - type: custom:paper-buttons-row
+        styles:
+          background-color: none
+          border-radius: 28px
+          justify-content: center
+          width: max-content
+          margin: 0 auto 12px auto
+          gap: 20px
+        base_config:
+          tap_action:
+            action: more-info
+          styles:
+            button:
+              width: 65px
+              height: 45px
+          state_styles:
+            unavailable:
+              button:
+                background-color: var(--purple)
+                border-radius: 28px
+            "off":
+              button:
+                background-color: var(--gray100)
+                border-radius: 28px
+              name:
+                color: var(--gray700)
+              icon:
+                color: var(--gray700)
+            "on":
+              button:
+                background-color: var(--blue)
+                border-radius: 28px
+              icon:
+                color: var(--gray700)
+              name:
+                color: var(--gray700)
+        buttons:
+          - layout: name_icon
+            ripple: none
+            entity: light.og_stube_schreibtisch_sandra_licht
+            name: Sandra
+          - layout: name_icon
+            name: PC
+            ripple: none
+            entity: switch.og_stube_schreibtisch_sandra_steckdose_pc
+            state_icons:
+              "off": mdi:monitor-speaker-off
+              "on": mdi:desktop-tower-monitor
+          - layout: name_icon
+            name: Niklas
+            ripple: none
+            entity: light.og_stube_schreibtisch
+          - layout: name_icon
+            ripple: none
+            name: PC
+            entity: switch.pc_niklas
+            state_icons:
+              "off": mdi:monitor-speaker-off
+              "on": mdi:desktop-tower-monitor
+      - type: custom:paper-buttons-row
+        styles:
+          background-color: none
+          border-radius: 28px
+          justify-content: center
+          width: max-content
+          margin: 0 auto 12px auto
+          gap: 20px
+        base_config:
+          tap_action:
+            action: more-info
+          styles:
+            button:
+              width: 65px
+              height: 45px
+          state_styles:
+            unavailable:
+              button:
+                background-color: var(--purple)
+                border-radius: 28px
+            "off":
+              button:
+                background-color: var(--gray100)
+                border-radius: 28px
+              name:
+                color: var(--gray700)
+              icon:
+                color: var(--gray700)
+            "on":
+              button:
+                background-color: var(--blue)
+                border-radius: 28px
+              icon:
+                color: var(--gray700)
+              name:
+                color: var(--gray700)
+        buttons:
+          - layout: icon
+            ripple: none
+            entity: light.og_stube_sofa_licht
+          - layout: icon
+            ripple: none
+            entity: light.og_stube_sofa_stehlampe
+          - layout: icon
+            ripple: none
+            entity: cover.og_stube_rollo
+            styles:
+              button:
+                background-color: var(--gray100)
+                border-radius: 28px
+              name:
+                color: var(--gray700)
+              icon:
+                color: var(--gray700)
+            state_icons:
+              open: phu:shutter-10
+              closed: phu:shutter-100
+            state_styles:
+              open:
+                button:
+                  background-color: var(--gray100)
+                  border-radius: 28px
+                name:
+                  color: var(--gray700)
+                icon:
+                  color: var(--gray700)
+              closed:
+                button:
+                  background-color: var(--blue)
+                  border-radius: 28px
+                icon:
+                  color: var(--gray700)
+                name:
+                  color: var(--gray700)
+          - layout: icon
+            ripple: none
+            entity: climate.og_stube_heizungsthermostat
+            state_styles:
+              "off":
+                button:
+                  background-color: var(--gray100)
+                  border-radius: 28px
+                name:
+                  color: var(--gray700)
+                icon:
+                  color: var(--gray700)
+              heat:
+                button:
+                  background-color: var(--red)
+                  border-radius: 28px
+                icon:
+                  color: var(--gray700)
+                name:
+                  color: var(--gray700)
+              auto:
+                button:
+                  background-color: var(--green)
+                  border-radius: 28px
+                icon:
+                  color: var(--gray700)
+                name:
+                  color: var(--gray700)
+  - type: vertical-stack
+    cards:
+      - type: custom:stack-in-card
+        card_mod:
+          style: |
+            ha-card {
+              background: none;
+            }
+        cards:
+          - type: custom:layout-card
+            layout_type: custom:grid-layout
+            layout:
+              grid-template-columns: auto 1fr
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Küche
+                card_mod:
+                  style: |
+                    ha-card {
+                      max-width: 100%;
+                      padding: 8px 0;
+                      --ha-card-background: none;
+                      --ha-card-box-shadow: none;
+                      --ha-card-border-width: 0;
+                      --card-primary-font-weight: bold;
+                      --card-primary-font-size: 16px;
+                    }
+                tap_action:
+                  action: fire-dom-event
+                  browser_mod:
+                    service: browser_mod.popup
+                    data:
+                      title: Küche
+                      content:
+                        type: vertical-stack
+                        cards:
+                          - type: custom:button-card
+                            styles:
+                              grid:
+                                - grid-template-areas: "\"temp chip\""
+                                - grid-template-columns: 1fr auto
+                              card:
+                                - padding: 24px
+                                - margin-bottom: 15px
+                                - margin-top: "-10px"
+                              custom_fields:
+                                graph:
+                                  - position: absolute
+                                  - width: 100%
+                                  - left: 0
+                                  - bottom: 0
+                                temp:
+                                  - justify-self: start
+                                  - text-align: left
+                                  - font-size: 40px
+                                  - color: black
+                                  - line-height: 50px
+                                  - font-weight: 500
+                                  - padding: 12px 0 0 0
+                                  - color: var(--gray800)
+                                chip:
+                                  - position: absolute
+                                  - top: 10px
+                                  - right: 10px
+                                  - padding: 4px 8px
+                                  - display: flex
+                                  - align-items: center
+                                  - height: 20px
+                            variables:
+                              var_temp: >
+                                [[[ return
+                                Math.round((states['sensor.og_kuche_temperatur'].state)*10)/10
+                                + ' °C' ]]]
+                              var_hum: >
+                                [[[  return '<span style="font-size:0.3em">' +
+                                '<ha-icon icon="mdi:water-percent" style="width:
+                                16px; height: 16px; color: var(--blue);
+                                margin-right: 2px;"></ha-icon>' + 
+                                Math.round((states['sensor.og_kuche_luftsensor_luftfeuchtigkeit'].state)*10)/10
+                                + ' %</span>'  ]]]
+                              var_pm2: >
+                                [[[  return '<span style="font-size:0.3em">' +
+                                '<ha-icon icon="mdi:weather-dust" style="width:
+                                16px; height: 16px; color: var(--orange);
+                                margin-right: 4px;"></ha-icon>' +
+                                Math.round((states['sensor.og_kuche_luftsensor_pm2_5'].state)*10)/10
+                                + ' µg/m³</span>'  ]]]
+                            custom_fields:
+                              temp: >
+                                [[[ return `${variables.var_temp}
+                                ${variables.var_hum} ${variables.var_pm2}` ]]]
+                              graph:
+                                card:
+                                  type: custom:mini-graph-card
+                                  entities:
+                                    - entity: sensor.og_kuche_temperatur
+                                  line_width: 0
+                                  height: 100
+                                  show:
+                                    icon: false
+                                    name: false
+                                    state: false
+                                    legend: false
+                                    labels: false
+                                  color_thresholds:
+                                    - value: -20
+                                      color: "#00008B"
+                                    - value: -10
+                                      color: "#0000FF"
+                                    - value: 0
+                                      color: "#00BFFF"
+                                    - value: 10
+                                      color: "#00FFFF"
+                                    - value: 15
+                                      color: "#7FFF00"
+                                    - value: 20
+                                      color: "#FFFF00"
+                                    - value: 25
+                                      color: "#FFA500"
+                                    - value: 30
+                                      color: "#FF4500"
+                                    - value: 35
+                                      color: "#FF0000"
+                                    - value: 40
+                                      color: "#8B0000"
+                                  card_mod:
+                                    style: |
+                                      ha-card {
+                                        border_style: none;
+                                        background: none;
+                                      }
+                              chip:
+                                card:
+                                  type: custom:mushroom-chips-card
+                                  chips:
+                                    - type: conditional
+                                      conditions:
+                                        - condition: state
+                                          entity: binary_sensor.og_kuche_rauchmelder_smoke
+                                          state_not: "off"
+                                      chip:
+                                        type: template
+                                        icon_color: red
+                                        icon: mdi:fire-alert
+                                        tap_action:
+                                          action: more-info
+                                        entity: binary_sensor.og_kuche_rauchmelder_smoke
+                                        card_mod:
+                                          style: |
+                                            .content {
+                                              animation: blink 1s linear infinite;
+                                            }
+                                            @keyframes blink {
+                                              50% {opacity: 0;}
+                                            }
+                                    - type: conditional
+                                      conditions:
+                                        - condition: state
+                                          entity: >-
+                                            binary_sensor.og_kuche_wassersensor_water_leak
+                                          state_not: "off"
+                                      chip:
+                                        type: template
+                                        icon_color: blue
+                                        icon: mdi:water-alert
+                                        tap_action:
+                                          action: more-info
+                                        entity: >-
+                                          binary_sensor.og_kuche_wassersensor_water_leak
+                                        card_mod:
+                                          style: |
+                                            .content {
+                                              animation: blink 1s linear infinite;
+                                            }
+                                            @keyframes blink {
+                                              50% {opacity: 0;}
+                                            }
+                                    - type: conditional
+                                      conditions:
+                                        - condition: state
+                                          entity: >-
+                                            binary_sensor.og_kuche_fenster_seite_state
+                                          state_not: "off"
+                                      chip:
+                                        type: template
+                                        icon_color: blue
+                                        icon: mdi:window-open-variant
+                                        content: Nebengelass
+                                        tap_action:
+                                          action: none
+                                        entity: >-
+                                          binary_sensor.og_kuche_fenster_seite_state
+                                    - type: conditional
+                                      conditions:
+                                        - condition: state
+                                          entity: >-
+                                            binary_sensor.og_kuche_fenster_strasse_state
+                                          state_not: "off"
+                                      chip:
+                                        type: template
+                                        icon_color: blue
+                                        icon: mdi:window-open-variant
+                                        content: Straße
+                                        tap_action:
+                                          action: none
+                                        entity: >-
+                                          binary_sensor.og_kuche_fenster_strasse_state
+                                    - type: conditional
+                                      conditions:
+                                        - entity: light.og_kuche_licht
+                                          state: "on"
+                                      chip:
+                                        type: template
+                                        icon: mdi:lightbulb
+                                        entity: light.og_kuche_licht
+                                        content: >
+                                          {{ expand(states.light.og_kuche_licht) |
+                                          selectattr('state', 'eq', 'on') | list |
+                                          count }}
+                                        icon_color: amber
+                                  alignment: end
+                                  card_mod:
+                                    style: |
+                                      ha-card {
+                                        --chip-box-shadow: none;
+                                        --chip-background: none;
+                                        --chip-border-width: 0;
+                                        margin: 6px;
+                                      }
+                          - type: custom:mushroom-title-card
+                            title: ""
+                            subtitle: Lampen & Steckdosen
+                          - type: custom:mushroom-light-card
+                            entity: light.og_kuche_arbeitsplatte
+                            name: Arbeitsplatte
+                            show_brightness_control: true
+                            show_color_temp_control: true
+                            show_color_control: true
+                            layout: horizontal
+                            collapsible_controls: true
+                            use_light_color: true
+                            fill_container: false
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+                          - type: custom:mushroom-light-card
+                            entity: light.og_kuche_spots
+                            name: Spots
+                            show_brightness_control: true
+                            show_color_temp_control: true
+                            show_color_control: true
+                            layout: horizontal
+                            collapsible_controls: true
+                            use_light_color: true
+                            fill_container: false
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+                          - type: custom:mushroom-entity-card
+                            entity: switch.og_kuche_steckdose_abzug
+                            name: Abzug
+                            icon: phu:extractor-fan
+                            layout: horizontal
+                            tap_action:
+                              action: toggle
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+                          - type: custom:mushroom-entity-card
+                            entity: switch.og_kuche_geschirrspuler_steckdose
+                            name: Geschirrspüler
+                            icon: mdi:dishwasher
+                            layout: horizontal
+                            tap_action:
+                              action: toggle
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+                          - type: custom:mushroom-light-card
+                            entity: light.og_kuche_kuchentisch
+                            name: Küchentisch
+                            show_brightness_control: true
+                            show_color_temp_control: true
+                            show_color_control: true
+                            layout: horizontal
+                            collapsible_controls: true
+                            use_light_color: true
+                            fill_container: false
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+                          - type: custom:mushroom-title-card
+                            title: ""
+                            subtitle: Thermostat & Heizung
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  margin-bottom: -20px;
+                                }
+                          - type: custom:simple-thermostat
+                            entity: climate.og_kuche_heizungsthermostat
+                            header:
+                              name: false
+                              icon: true
+                              faults:
+                                - entity: binary_sensor.og_kuche_fenster
+                                  icon: mdi:window-open
+                                - entity: >-
+                                    binary_sensor.og_kuche_heizungsthermostat_batterie_leer
+                                  icon: mdi:battery-charging-outline
+                            layout:
+                              mode:
+                                names: true
+                                icons: true
+                                headings: true
+                              step: row
+                            decimals: 1
+                            hide:
+                              temperature: true
+                              state: true
+                            sensors:
+                              - entity: sensor.og_kuche_temperatur
+                                icon: mdi:thermometer-lines
+                              - entity: climate.og_kuche_heizungsthermostat
+                                icon: mdi:power-cycle
+                            control:
+                              hvac:
+                                _name: Modus
+                                "off":
+                                  name: AUS
+                                auto:
+                                  name: Auto
+                                heat:
+                                  name: Manuell
+                                  icon: mdi:hand-pointing-up
+                              preset:
+                                _name: Profil
+                                boost:
+                                  name: Boost
+                                  icon: mdi:radiator
+                                none: false
+                                week_program_1:
+                                  name: Zuhause
+                                  icon: mdi:home-account
+                                week_program_2:
+                                  name: Arbeit
+                                  icon: phu:desktop-computer
+                                week_program_3:
+                                  name: Abgesenkt
+                                  icon: mdi:snowflake-thermometer
+                                week_program_4: false
+                                week_program_5: false
+                                week_program_6: false
+                            card_mod:
+                              style: |
+                                .modes.heading .mode-title {
+                                  min-width: 50px;
+                                  display: inline-block;
+                                }
+                                ha-card {
+                                background: none;
+                                }
+                                .modes.heading .mode-item {
+                                  border-radius: 28px;
+                                }
+              - type: custom:bubble-card
+                card_type: separator
+                card_layout: large
+                sub_button:
+                  - entity: binary_sensor.og_kuche_fenster
+                    show_background: true
+                    show_state: false
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: false
+                    tap_action:
+                      action: none
+                  - entity: sensor.og_kuche_luftsensor_pm2_5
+                    show_background: true
+                    show_state: true
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: true
+                    tap_action:
+                      action: none
+                  - entity: sensor.og_kuche_luftsensor_luftfeuchtigkeit
+                    show_background: true
+                    show_state: true
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: false
+                    tap_action:
+                      action: none
+                  - entity: sensor.og_kuche_temperatur
+                    show_background: true
+                    show_state: true
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: false
+                    tap_action:
+                      action: none
+                styles: |-
+                  .bubble-sub-button-1 {
+                    display: ${hass.states['binary_sensor.og_kuche_fenster'].state === 'on' ? '' : 'none'} !important;
+                  }
+                  .bubble-sub-button-2 {
+                    background-color: ${hass.states['sensor.og_kuche_luftsensor_pm2_5'].state === 'unavailable' ? 'var(--purple)' :
+                                      hass.states['sensor.og_kuche_luftsensor_pm2_5'].state >= 200 ? 'var(--red)' :
+                                      hass.states['sensor.og_kuche_luftsensor_pm2_5'].state >= 75 ? 'var(--yellow)' :
+                                      'transparent'} !important;
+                  }
+                  .bubble-sub-button-3 {
+                    background-color: ${hass.states['sensor.og_kuche_luftsensor_luftfeuchtigkeit'].state === 'unavailable' ? 'var(--purple)' :
+                                      hass.states['sensor.og_kuche_luftsensor_luftfeuchtigkeit'].state >= 80 ? 'var(--red)' :
+                                      hass.states['sensor.og_kuche_luftsensor_luftfeuchtigkeit'].state >= 60 ? 'var(--yellow)' :
+                                      'transparent'} !important;
+                  }
+                  .bubble-sub-button-4 {
+                    background-color: ${hass.states['sensor.og_kuche_temperatur'].state === 'unavailable' ? 'var(--purple)' :
+                                      hass.states['sensor.og_kuche_temperatur'].state >= 28 ? 'var(--red)' :
+                                      hass.states['sensor.og_kuche_temperatur'].state >= 23 ? 'var(--yellow)' :
+                                      hass.states['sensor.og_kuche_temperatur'].state >= 17 ? 'transparent' :
+                                      'var(--blue)'} !important;
+                  }
+                  .bubble-line {
+                    background: var(--active-small);
+                    opacity: 0.2;
+                    margin: 0;
+                    padding: 0;
+                  }
+                  .bubble-sub-button {
+                    font-size: 12px;
+                  }
+                card_mod:
+                  style: |
+                    ha-card {
+                      max-width: 100%;
+                      width: 100%;
+                      overflow: hidden;
+                      display: inline-block;
+                      padding: 0;
+                    }
+                icon: ""
+      - type: custom:paper-buttons-row
+        styles:
+          background-color: none
+          border-radius: 28px
+          justify-content: center
+          width: max-content
+          margin: 0 auto 12px auto
+          gap: 20px
+        base_config:
+          tap_action:
+            action: more-info
+          styles:
+            button:
+              width: 65px
+              height: 45px
+          state_styles:
+            unavailable:
+              button:
+                background-color: var(--purple)
+                border-radius: 28px
+            "off":
+              button:
+                background-color: var(--gray100)
+                border-radius: 28px
+              name:
+                color: var(--gray700)
+              icon:
+                color: var(--gray700)
+            "on":
+              button:
+                background-color: var(--blue)
+                border-radius: 28px
+              icon:
+                color: var(--gray700)
+              name:
+                color: var(--gray700)
+        buttons:
+          - layout: icon
+            ripple: none
+            entity: switch.og_kuche_steckdose_abzug
+            state_icons:
+              "off": mdi:fan-off
+              "on": mdi:fan
+            state_styles:
+              "on":
+                icon:
+                  animation: rotating 2s ease infinite
+          - layout: icon
+            ripple: none
+            entity: switch.og_kuche_geschirrspuler_steckdose
+            state_icons:
+              "off": mdi:dishwasher-off
+              "on": mdi:dishwasher
+          - layout: icon
+            ripple: none
+            entity: switch.og_kuche_kaffeemaschine_switchbot_schalter
+            state_icons:
+              "off": mdi:coffee-maker-outline
+              "on": mdi:coffee-maker-check-outline
+      - type: custom:paper-buttons-row
+        styles:
+          background-color: none
+          border-radius: 28px
+          justify-content: center
+          width: max-content
+          margin: 0 auto 12px auto
+          gap: 20px
+        base_config:
+          tap_action:
+            action: more-info
+          styles:
+            button:
+              width: 65px
+              height: 45px
+          state_styles:
+            unavailable:
+              button:
+                background-color: var(--purple)
+                border-radius: 28px
+            "off":
+              button:
+                background-color: var(--gray100)
+                border-radius: 28px
+              name:
+                color: var(--gray700)
+              icon:
+                color: var(--gray700)
+            "on":
+              button:
+                background-color: var(--blue)
+                border-radius: 28px
+              icon:
+                color: var(--gray700)
+              name:
+                color: var(--gray700)
+        buttons:
+          - layout: icon
+            ripple: none
+            entity: light.og_kuche_arbeitsplatte
+          - layout: icon
+            ripple: none
+            entity: light.og_kuche_spots
+          - layout: icon
+            ripple: none
+            entity: light.og_kuche_kuchentisch
+          - layout: icon
+            ripple: none
+            entity: climate.og_kuche_heizungsthermostat
+            state_styles:
+              "off":
+                button:
+                  background-color: var(--gray100)
+                  border-radius: 28px
+                name:
+                  color: var(--gray700)
+                icon:
+                  color: var(--gray700)
+              heat:
+                button:
+                  background-color: var(--red)
+                  border-radius: 28px
+                icon:
+                  color: var(--gray700)
+                name:
+                  color: var(--gray700)
+              auto:
+                button:
+                  background-color: var(--green)
+                  border-radius: 28px
+                icon:
+                  color: var(--gray700)
+                name:
+                  color: var(--gray700)
+  - type: vertical-stack
+    cards:
+      - type: custom:stack-in-card
+        card_mod:
+          style: |
+            ha-card {
+              background: none;
+            }
+        cards:
+          - type: custom:layout-card
+            layout_type: custom:grid-layout
+            layout:
+              grid-template-columns: auto 1fr
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Wintergarten
+                card_mod:
+                  style: |
+                    ha-card {
+                      max-width: 100%;
+                      padding: 8px 0;
+                      --ha-card-background: none;
+                      --ha-card-box-shadow: none;
+                      --ha-card-border-width: 0;
+                      --card-primary-font-weight: bold;
+                      --card-primary-font-size: 16px;
+                    }
+                tap_action:
+                  action: fire-dom-event
+                  browser_mod:
+                    service: browser_mod.popup
+                    data:
+                      title: Wintergarten
+                      content:
+                        type: vertical-stack
+                        cards:
+                          - type: custom:button-card
+                            styles:
+                              grid:
+                                - grid-template-areas: "\"temp chip\""
+                                - grid-template-columns: 1fr auto
+                              card:
+                                - padding: 24px
+                                - margin-bottom: 15px
+                                - margin-top: "-10px"
+                              custom_fields:
+                                graph:
+                                  - position: absolute
+                                  - width: 100%
+                                  - left: 0
+                                  - bottom: 0
+                                temp:
+                                  - justify-self: start
+                                  - text-align: left
+                                  - font-size: 40px
+                                  - color: black
+                                  - line-height: 50px
+                                  - font-weight: 500
+                                  - padding: 12px 0 0 0
+                                  - color: var(--gray800)
+                                chip:
+                                  - position: absolute
+                                  - top: 10px
+                                  - right: 10px
+                                  - padding: 4px 8px
+                                  - display: flex
+                                  - align-items: center
+                                  - height: 20px
+                            variables:
+                              var_temp: >
+                                [[[ return
+                                Math.round((states['sensor.og_wintergarten_multisensor_temperatur'].state)*10)/10
+                                + ' °C' ]]]
+                              var_hum: >
+                                [[[  return '<span style="font-size:0.3em">' +
+                                '<ha-icon icon="mdi:water-percent" style="width:
+                                16px; height: 16px; color: var(--blue);
+                                margin-right: 2px;"></ha-icon>' + 
+                                Math.round((states['sensor.og_wintergarten_multisensor_luftfeuchtigkeit'].state)*10)/10
+                                + ' %</span>'  ]]]
+                              var_druck: >
+                                [[[  return '<span style="font-size:0.3em">' +
+                                '<ha-icon icon="mdi:gauge" style="width: 16px;
+                                height: 16px; color: var(gray800); margin-right:
+                                4px;"></ha-icon>' +
+                                Math.round((states['sensor.og_wintergarten_multisensor_druck'].state)*10)/10
+                                + ' hPa</span>'  ]]]
+                            custom_fields:
+                              temp: >
+                                [[[ return `${variables.var_temp}
+                                ${variables.var_hum} ${variables.var_druck}` ]]]
+                              graph:
+                                card:
+                                  type: custom:mini-graph-card
+                                  entities:
+                                    - entity: >-
+                                        sensor.og_wintergarten_multisensor_temperatur
+                                  line_width: 0
+                                  height: 100
+                                  show:
+                                    icon: false
+                                    name: false
+                                    state: false
+                                    legend: false
+                                    labels: false
+                                  color_thresholds:
+                                    - value: -20
+                                      color: "#00008B"
+                                    - value: -10
+                                      color: "#0000FF"
+                                    - value: 0
+                                      color: "#00BFFF"
+                                    - value: 10
+                                      color: "#00FFFF"
+                                    - value: 15
+                                      color: "#7FFF00"
+                                    - value: 20
+                                      color: "#FFFF00"
+                                    - value: 25
+                                      color: "#FFA500"
+                                    - value: 30
+                                      color: "#FF4500"
+                                    - value: 35
+                                      color: "#FF0000"
+                                    - value: 40
+                                      color: "#8B0000"
+                                  card_mod:
+                                    style: |
+                                      ha-card {
+                                        border_style: none;
+                                        background: none;
+                                      }
+                              chip:
+                                card:
+                                  type: custom:mushroom-chips-card
+                                  chips:
+                                    - type: conditional
+                                      conditions:
+                                        - condition: state
+                                          entity: >-
+                                            binary_sensor.og_wintergarten_rauchmelder_smoke
+                                          state_not: "off"
+                                      chip:
+                                        type: template
+                                        icon_color: red
+                                        icon: mdi:fire-alert
+                                        tap_action:
+                                          action: more-info
+                                        entity: >-
+                                          binary_sensor.og_wintergarten_rauchmelder_rauch
+                                        card_mod:
+                                          style: |
+                                            .content {
+                                              animation: blink 1s linear infinite;
+                                            }
+                                            @keyframes blink {
+                                              50% {opacity: 0;}
+                                            }
+                                    - type: template
+                                      icon: >-
+                                        {% if
+                                        is_state('binary_sensor.og_wintergarten_fenster',
+                                        'off') %}
+                                          mdi:window-closed-variant
+                                        {% else %}
+                                          mdi:window-open-variant
+                                        {% endif %}
+                                      icon_color: >-
+                                        {% if
+                                        is_state('binary_sensor.og_wintergarten_fenster',
+                                        'off') %}
+                                          green
+                                        {% else %}
+                                          red
+                                        {% endif %}
+                                      tap_action:
+                                        action: none
+                                      entity: binary_sensor.og_wintergarten_fenster
+                                    - type: conditional
+                                      conditions:
+                                        - entity: light.og_wintergarten_licht
+                                          state: "on"
+                                      chip:
+                                        type: template
+                                        icon: mdi:lightbulb
+                                        entity: light.og_wintergarten_licht
+                                        content: >
+                                          {{
+                                          expand(states.light.og_wintergarten_licht)
+                                          | selectattr('state', 'eq', 'on') | list
+                                          | count }}
+                                        icon_color: amber
+                                  alignment: end
+                                  card_mod:
+                                    style: |
+                                      ha-card {
+                                        --chip-box-shadow: none;
+                                        --chip-background: none;
+                                        --chip-border-width: 0;
+                                        margin: 6px;
+                                      }
+                          - type: custom:mushroom-title-card
+                            title: ""
+                            subtitle: Lampen & Steckdosen
+                          - type: custom:mushroom-light-card
+                            entity: light.og_wintergarten_licht
+                            name: Licht
+                            show_brightness_control: true
+                            show_color_temp_control: true
+                            show_color_control: true
+                            layout: horizontal
+                            collapsible_controls: true
+                            use_light_color: true
+                            fill_container: false
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+                          - type: custom:mushroom-entity-card
+                            entity: switch.og_wintergarten_lufter_steckdose_lufter
+                            name: Lüfter
+                            icon: ""
+                            layout: horizontal
+                            tap_action:
+                              action: toggle
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+                          - type: custom:mushroom-title-card
+                            title: ""
+                            subtitle: Kamera
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  margin-bottom: 5px;
+                                }
+                          - show_state: false
+                            show_name: false
+                            camera_view: live
+                            type: picture-entity
+                            entity: camera.wintergarten_klar
+                            camera_image: camera.wintergarten_klar
+                            tap_action:
+                              action: none
+                            hold_action:
+                              action: none
+              - type: custom:bubble-card
+                card_type: separator
+                card_layout: large
+                sub_button:
+                  - entity: binary_sensor.og_wintergarten_fenster
+                    show_background: true
+                    show_state: false
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: false
+                    tap_action:
+                      action: none
+                  - entity: sensor.og_wintergarten_multisensor_druck
+                    show_background: false
+                    show_state: true
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: false
+                    tap_action:
+                      action: none
+                  - entity: sensor.og_wintergarten_multisensor_luftfeuchtigkeit
+                    show_background: true
+                    show_state: true
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: false
+                    tap_action:
+                      action: none
+                  - entity: sensor.og_wintergarten_multisensor_temperatur
+                    show_background: true
+                    show_state: true
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: false
+                    tap_action:
+                      action: none
+                styles: |-
+                  .bubble-sub-button-1 {
+                    display: ${hass.states['binary_sensor.og_wintergarten_fenster'].state === 'on' ? '' : 'none'} !important;
+                  }
+                  .bubble-sub-button-2 {
+                    background-color: ${hass.states['sensor.og_wintergarten_multisensor_druck'].state === 'unavailable' ? 'var(--purple)' :
+                                      'transparent'} !important;
+                  }
+                  .bubble-sub-button-3 {
+                    background-color: ${hass.states['sensor.og_wintergarten_multisensor_luftfeuchtigkeit'].state === 'unavailable' ? 'var(--purple)' :
+                                      hass.states['sensor.og_wintergarten_multisensor_luftfeuchtigkeit'].state >= 80 ? 'var(--red)' :
+                                      hass.states['sensor.og_wintergarten_multisensor_luftfeuchtigkeit'].state >= 60 ? 'var(--yellow)' :
+                                      'transparent'} !important;
+                  }
+                  .bubble-sub-button-4 {
+                    background-color: ${hass.states['sensor.og_wintergarten_multisensor_temperatur'].state === 'unavailable' ? 'var(--purple)' :
+                                      hass.states['sensor.og_wintergarten_multisensor_temperatur'].state >= 28 ? 'var(--red)' :
+                                      hass.states['sensor.og_wintergarten_multisensor_temperatur'].state >= 23 ? 'var(--yellow)' :
+                                      hass.states['sensor.og_wintergarten_multisensor_temperatur'].state >= 17 ? 'transparent' :
+                                      'var(--blue)'} !important;
+                  }
+                  .bubble-line {
+                    background: var(--active-small);
+                    opacity: 0.2;
+                    margin: 0;
+                    padding: 0;
+                  }
+                  .bubble-sub-button {
+                    font-size: 12px;
+                  }
+                card_mod:
+                  style: |
+                    ha-card {
+                      max-width: 100%;
+                      width: 100%;
+                      overflow: hidden;
+                      display: inline-block;
+                      padding: 0;
+                    }
+                icon: ""
+      - type: custom:paper-buttons-row
+        styles:
+          background-color: none
+          border-radius: 28px
+          justify-content: center
+          width: max-content
+          margin: 0 auto 12px auto
+          gap: 20px
+        base_config:
+          tap_action:
+            action: more-info
+          styles:
+            button:
+              width: 65px
+              height: 45px
+          state_styles:
+            unavailable:
+              button:
+                background-color: var(--purple)
+                border-radius: 28px
+            "off":
+              button:
+                background-color: var(--gray100)
+                border-radius: 28px
+              name:
+                color: var(--gray700)
+              icon:
+                color: var(--gray700)
+            "on":
+              button:
+                background-color: var(--blue)
+                border-radius: 28px
+              icon:
+                color: var(--gray700)
+              name:
+                color: var(--gray700)
+        buttons:
+          - layout: icon
+            ripple: none
+            entity: light.og_wintergarten_licht
+          - layout: icon
+            ripple: none
+            entity: switch.og_wintergarten_lufter_steckdose_lufter
+            state_icons:
+              "off": mdi:fan-off
+              "on": mdi:fan
+            state_styles:
+              "on":
+                icon:
+                  animation: rotating 2s ease infinite
+  - type: vertical-stack
+    cards:
+      - type: custom:stack-in-card
+        card_mod:
+          style: |
+            ha-card {
+              background: none;
+            }
+        cards:
+          - type: custom:layout-card
+            layout_type: custom:grid-layout
+            layout:
+              grid-template-columns: auto 1fr
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Terrasse
+                card_mod:
+                  style: |
+                    ha-card {
+                      max-width: 100%;
+                      padding: 8px 0;
+                      --ha-card-background: none;
+                      --ha-card-box-shadow: none;
+                      --ha-card-border-width: 0;
+                      --card-primary-font-weight: bold;
+                      --card-primary-font-size: 16px;
+                    }
+                tap_action:
+                  action: fire-dom-event
+                  browser_mod:
+                    service: browser_mod.popup
+                    data:
+                      title: Terrasse
+                      content:
+                        type: vertical-stack
+                        cards:
+                          - type: custom:button-card
+                            styles:
+                              grid:
+                                - grid-template-areas: "\"temp chip\""
+                                - grid-template-columns: 1fr auto
+                              card:
+                                - padding: 24px
+                                - margin-bottom: 15px
+                                - margin-top: "-10px"
+                              custom_fields:
+                                graph:
+                                  - position: absolute
+                                  - width: 100%
+                                  - left: 0
+                                  - bottom: 0
+                                temp:
+                                  - justify-self: start
+                                  - text-align: left
+                                  - font-size: 40px
+                                  - color: black
+                                  - line-height: 50px
+                                  - font-weight: 500
+                                  - padding: 12px 0 0 0
+                                  - color: var(--gray800)
+                                chip:
+                                  - position: absolute
+                                  - top: 10px
+                                  - right: 10px
+                                  - padding: 4px 8px
+                                  - display: flex
+                                  - align-items: center
+                                  - height: 20px
+                            variables:
+                              var_temp: >
+                                [[[ return
+                                Math.round((states['sensor.g_terrasse_wetterstation_temperatur'].state)*10)/10
+                                + ' °C' ]]]
+                              var_hum: >
+                                [[[  return '<span style="font-size:0.3em">' +
+                                '<ha-icon icon="mdi:water-percent" style="width:
+                                16px; height: 16px; color: var(--blue);
+                                margin-right: 2px;"></ha-icon>' + 
+                                Math.round((states['sensor.g_terrasse_wetterstation_luftfeuchtigkeit'].state)*10)/10
+                                + ' %</span>'  ]]]
+                              var_wind: >
+                                [[[  return '<span style="font-size:0.3em">' +
+                                '<ha-icon icon="mdi:weather-windy" style="width:
+                                16px; height: 16px; color: var(gray800);
+                                margin-right: 4px;"></ha-icon>' +
+                                Math.round((states['sensor.g_terrasse_wetterstation_windgeschwindigkeit'].state)*10)/10
+                                + ' km/h</span>'  ]]]
+                            custom_fields:
+                              temp: >
+                                [[[ return `${variables.var_temp}
+                                ${variables.var_hum} ${variables.var_wind}` ]]]
+                              graph:
+                                card:
+                                  type: custom:mini-graph-card
+                                  entities:
+                                    - entity: >-
+                                        sensor.g_terrasse_wetterstation_temperatur
+                                  line_width: 0
+                                  height: 100
+                                  show:
+                                    icon: false
+                                    name: false
+                                    state: false
+                                    legend: false
+                                    labels: false
+                                  color_thresholds:
+                                    - value: -20
+                                      color: "#00008B"
+                                    - value: -10
+                                      color: "#0000FF"
+                                    - value: 0
+                                      color: "#00BFFF"
+                                    - value: 10
+                                      color: "#00FFFF"
+                                    - value: 15
+                                      color: "#7FFF00"
+                                    - value: 20
+                                      color: "#FFFF00"
+                                    - value: 25
+                                      color: "#FFA500"
+                                    - value: 30
+                                      color: "#FF4500"
+                                    - value: 35
+                                      color: "#FF0000"
+                                    - value: 40
+                                      color: "#8B0000"
+                                  card_mod:
+                                    style: |
+                                      ha-card {
+                                        border_style: none;
+                                        background: none;
+                                      }
+                              chip:
+                                card:
+                                  type: custom:mushroom-chips-card
+                                  chips:
+                                    - type: conditional
+                                      conditions:
+                                        - entity: light.g_terrasse_wand
+                                          state: "on"
+                                      chip:
+                                        type: template
+                                        icon: mdi:lightbulb
+                                        entity: light.g_terrasse_wand
+                                        content: >
+                                          {{ expand(states.light.g_terrasse_wand)
+                                          | selectattr('state', 'eq', 'on') | list
+                                          | count }}
+                                        icon_color: amber
+                                  alignment: end
+                                  card_mod:
+                                    style: |
+                                      ha-card {
+                                        --chip-box-shadow: none;
+                                        --chip-background: none;
+                                        --chip-border-width: 0;
+                                        margin: 6px;
+                                      }
+                          - type: custom:mushroom-title-card
+                            title: ""
+                            subtitle: Lampen & Steckdosen
+                          - type: custom:mushroom-light-card
+                            entity: light.g_terrasse_wand
+                            name: Licht
+                            show_brightness_control: true
+                            show_color_temp_control: true
+                            show_color_control: true
+                            layout: horizontal
+                            collapsible_controls: true
+                            use_light_color: true
+                            fill_container: false
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  background: none;
+                                  margin-bottom: 10px;
+                                }
+              - type: custom:bubble-card
+                card_type: separator
+                card_layout: large
+                sub_button:
+                  - entity: sensor.g_terrasse_wetterstation_luftfeuchtigkeit
+                    show_background: true
+                    show_state: true
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: false
+                    tap_action:
+                      action: none
+                  - entity: sensor.g_terrasse_wetterstation_temperatur
+                    show_background: true
+                    show_state: true
+                    show_name: false
+                    show_last_changed: false
+                    show_attribute: false
+                    tap_action:
+                      action: none
+                styles: |-
+                  .bubble-sub-button-1 {
+                    background-color: ${hass.states['sensor.g_terrasse_wetterstation_luftfeuchtigkeit'].state === 'unavailable' ? 'var(--purple)' :
+                                      hass.states['sensor.g_terrasse_wetterstation_luftfeuchtigkeit'].state >= 80 ? 'var(--red)' :
+                                      hass.states['sensor.g_terrasse_wetterstation_luftfeuchtigkeit'].state >= 60 ? 'var(--yellow)' :
+                                      'transparent'} !important;
+                  }
+                  .bubble-sub-button-2 {
+                    background-color: ${hass.states['sensor.g_terrasse_wetterstation_temperatur'].state === 'unavailable' ? 'var(--purple)' :
+                                      hass.states['sensor.g_terrasse_wetterstation_temperatur'].state >= 28 ? 'var(--red)' :
+                                      hass.states['sensor.g_terrasse_wetterstation_temperatur'].state >= 23 ? 'var(--yellow)' :
+                                      hass.states['sensor.g_terrasse_wetterstation_temperatur'].state >= 17 ? 'transparent' :
+                                      'var(--blue)'} !important;
+                  }
+                  .bubble-line {
+                    background: var(--active-small);
+                    opacity: 0.2;
+                    margin: 0;
+                    padding: 0;
+                  }
+                  .bubble-sub-button {
+                    font-size: 12px;
+                  }
+                card_mod:
+                  style: |
+                    ha-card {
+                      max-width: 100%;
+                      width: 100%;
+                      overflow: hidden;
+                      display: inline-block;
+                      padding: 0;
+                    }
+                icon: ""
+      - type: custom:paper-buttons-row
+        styles:
+          background-color: none
+          border-radius: 28px
+          justify-content: center
+          width: max-content
+          margin: 0 auto 12px auto
+          gap: 20px
+        base_config:
+          tap_action:
+            action: more-info
+          styles:
+            button:
+              width: 65px
+              height: 45px
+          state_styles:
+            unavailable:
+              button:
+                background-color: var(--purple)
+                border-radius: 28px
+            "off":
+              button:
+                background-color: var(--gray100)
+                border-radius: 28px
+              name:
+                color: var(--gray700)
+              icon:
+                color: var(--gray700)
+            "on":
+              button:
+                background-color: var(--blue)
+                border-radius: 28px
+              icon:
+                color: var(--gray700)
+              name:
+                color: var(--gray700)
+        buttons:
+          - layout: icon
+            ripple: none
+            entity: light.g_terrasse_wand

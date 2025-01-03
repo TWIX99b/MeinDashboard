@@ -1,0 +1,757 @@
+type: custom:stack-in-card
+card_mod:
+  style: |
+    ha-card {
+      background: none;
+    }
+cards:
+  - type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: auto 1fr
+    cards:
+      - type: custom:mushroom-template-card
+        primary: Schlafzimmer
+        card_mod:
+          style: |
+            ha-card {
+              max-width: 100%;
+              padding: 8px;
+              --ha-card-background: none;
+              --ha-card-box-shadow: none;
+              --ha-card-border-width: 0;
+              --card-primary-font-weight: bold;
+            }
+        tap_action:
+          action: fire-dom-event
+          browser_mod:
+            service: browser_mod.popup
+            data:
+              title: Stube
+              content:
+                type: vertical-stack
+                cards:
+                  - type: custom:mushroom-chips-card
+                    chips:
+                      - type: conditional
+                        conditions:
+                          - condition: state
+                            entity: binary_sensor.og_stube_rauchmelder
+                            state_not: "off"
+                        chip:
+                          type: template
+                          icon_color: red
+                          icon: mdi:fire-alert
+                          tap_action:
+                            action: more-info
+                          entity: binary_sensor.og_stube_rauchmelder
+                          card_mod:
+                            style: |
+                              .content {
+                                animation: blink 1s linear infinite;
+                              }
+                              @keyframes blink {
+                                50% {opacity: 0;}
+                              }
+                      - type: entity
+                        entity: sensor.og_stube_luftsensor_pm2_5
+                        icon_color: brown
+                      - type: entity
+                        entity: sensor.og_stube_temperatur
+                        icon_color: green
+                      - type: entity
+                        entity: sensor.og_stube_luftsensor_luftfeuchtigkeit
+                        icon_color: blue
+                      - type: conditional
+                        conditions:
+                          - entity: light.og_stube_licht
+                            state: "on"
+                        chip:
+                          type: template
+                          icon: mdi:lightbulb
+                          entity: light.og_stube_licht
+                          content: >
+                            {{ expand(states.light.og_stube_licht) |
+                            selectattr('state', 'eq', 'on') | list | count }}
+                          icon_color: amber
+                      - type: template
+                        icon: >-
+                          {% if
+                          is_state('binary_sensor.og_stube_tursensor_wintergarten',
+                          'off') %}
+                            mdi:door-closed
+                          {% else %}
+                            mdi:door-open
+                          {% endif %}
+                        content: >-
+                          {% if
+                          is_state('binary_sensor.og_stube_tursensor_wintergarten',
+                          'off') %}
+                            Winter zu
+                          {% else %}
+                            Winter auf
+                          {% endif %}
+                        icon_color: >-
+                          {% if
+                          is_state('binary_sensor.og_stube_tursensor_wintergarten',
+                          'off') %}
+                            green
+                          {% else %}
+                            red
+                          {% endif %}
+                        tap_action:
+                          action: more-info
+                        entity: binary_sensor.og_stube_tursensor_wintergarten
+                    alignment: end
+                    card_mod:
+                      style: |
+                        ha-card {
+                          --chip-box-shadow: none;
+                          --chip-background: none;
+                          --chip-border-width: 0;
+                          margin: 6px;
+                        }
+                  - type: custom:mushroom-light-card
+                    entity: light.og_stube_sofa_licht
+                    name: Sofa
+                    show_brightness_control: true
+                    show_color_temp_control: true
+                    show_color_control: true
+                    layout: horizontal
+                    collapsible_controls: true
+                    use_light_color: true
+                    fill_container: false
+                    card_mod:
+                      style: |
+                        ha-card {
+                          background: none;
+                        }
+                        mushroom-state-info$:
+                          .container:
+                            .primary {
+                              {% if state_attr(config.entity, 'supported_color_modes')|contains('brightness') == true %}
+                                flex-shrink: 0;
+                                flex-grow: 0;
+                              {% else %}
+                                flex-shrink: 1;
+                                flex-grow: 1;
+                              {% endif %}
+                              padding-left: 5px;
+                              {% if state_attr(config.entity, 'rgb_color') == none %}
+                                {% if states(config.entity) == 'on' %}
+                                  text-shadow: 0px 0px 7px orange;
+                                  --primary-text-color: #1a1a1a;
+                                {% else %}
+                                {% endif %}
+                              {% else %}
+                                {% if (state_attr(config.entity,'rgb_color')[0] * 0.21 | float) + (state_attr(config.entity,'rgb_color')[1] * 0.72 | float) + (state_attr(config.entity,'rgb_color')[2] * 0.07 | float) >= 100 and state_attr(config.entity, 'rgb_color') != none %}
+                                  text-shadow: 0px 0px 7px rgba{{state_attr(config.entity,'rgb_color')[0] * 1, state_attr(config.entity,'rgb_color')[1] * 1, state_attr(config.entity,'rgb_color')[2] * 1, 1}};
+                                  --primary-text-color: #1a1a1a;
+                                {% else %}
+                                  text-shadow: 0px 0px 7px rgba{{state_attr(config.entity,'rgb_color')[0] * 0.5, state_attr(config.entity,'rgb_color')[1] * 0.5, state_attr(config.entity,'rgb_color')[2] * 0.5, 1}};
+                                  --primary-text-color: #fafafa;
+                                {% endif %}
+                              {% endif %}
+                            }
+                            .secondary {
+                              {% if state_attr(config.entity, 'supported_color_modes')|contains('brightness') == true %}
+                                {% if states(config.entity) == 'on' %}
+                                  position: absolute;
+                                  right: 15px;
+                                  top: 23px;
+                                {% else %}
+                                {% endif %}
+                              {% else %}
+                                flex-shrink: 1;
+                              {% endif %}
+                              flex-grow: 0;
+                              margin-right: 10px;
+                              padding: 0 5px;
+                              {% if state_attr(config.entity, 'rgb_color') == none %}
+                                {% if states(config.entity) == 'on' %}
+                                  text-shadow: 0px 0px 7px orange;
+                                  --secondary-text-color: #1a1a1a;
+                                {% else %}
+                                {% endif %}
+                              {% else %}
+                                {% if (state_attr(config.entity,'rgb_color')[0] * 0.21 | float) + (state_attr(config.entity,'rgb_color')[1] * 0.72 | float) + (state_attr(config.entity,'rgb_color')[2] * 0.07 | float) >= 100 and state_attr(config.entity, 'rgb_color') != none %}
+                                  text-shadow: 0px 0px 7px rgba{{state_attr(config.entity,'rgb_color')[0] * 1, state_attr(config.entity,'rgb_color')[1] * 1, state_attr(config.entity,'rgb_color')[2] * 1, 1}};
+                                  --secondary-text-color: #1a1a1a;
+                                {% else %}
+                                  text-shadow: 0px 0px 7px rgba{{state_attr(config.entity,'rgb_color')[0] * 0.5, state_attr(config.entity,'rgb_color')[1] * 0.5, state_attr(config.entity,'rgb_color')[2] * 0.5, 0.5}};
+                                  --secondary-text-color: #fafafa;
+                                {% endif %}
+                              {% endif %}
+                            }
+                          .: |
+                            .container {
+                              display: flex;
+                              {% if states(config.entity) == 'on' %}
+                                z-index: 1;
+                                flex-direction: row !important;
+                                align-items: baseline;
+                                pointer-events: none !important;
+                                margin-left: 10px;
+                                margin-right: -8px;
+                              {% else %}
+                              {% endif %}
+                            }
+                        mushroom-light-brightness-control$:
+                          mushroom-slider$: |
+                            .container {
+                              position: absolute;
+                              flex-basis: max-content;
+                              {% set rgb = (state_attr(config.entity, 'supported_color_modes')|contains('rgb') or state_attr(config.entity, 'supported_color_modes')|contains('xy')) and config.show_color_control != false %}
+                              {% set color_temp = state_attr(config.entity, 'supported_color_modes')|contains('color_temp') and config.show_color_temp_control != false %}
+                              {% if (rgb == true and color_temp == true) %}
+                                width: calc(100% - 190px);
+                              {% elif (rgb == false and color_temp == true) %}
+                                width: calc(100% - 136px);
+                              {% elif (rgb == true and color_temp == false) %}
+                                width: calc(100% - 136px);
+                              {% else %}
+                                width: calc(100% - 80px);
+                              {% endif %}
+                              left: 68px;
+                              top: 18.2%;
+                            }
+                            .slider-track-background {
+                              background-color: rgba{{state_attr(config.entity,'rgb_color')[0] * 0.75, state_attr(config.entity,'rgb_color')[1] * 0.75, state_attr(config.entity,'rgb_color')[2] * 0.75, 0.5}} !important;
+                            }
+                        mushroom-light-color-control$:
+                          mushroom-slider$: |
+                            .container {
+                              position: absolute;
+                              flex-basis: max-content;
+                              {% if (state_attr(config.entity, 'supported_color_modes')|contains('color_temp') == true and config.show_color_temp_control != false) %}
+                                width: calc(100% - 190px);
+                              {% else %}
+                                width: calc(100% - 136px);
+                              {% endif %}
+                              left: 68px;
+                              top: 18.2%
+                            }
+                        mushroom-light-color-temp-control$:
+                          mushroom-slider$: |
+                            .container {
+                              position: absolute;
+                              flex-basis: max-content;
+                              {% if ((state_attr(config.entity, 'supported_color_modes')|contains('rgb') or state_attr(config.entity, 'supported_color_modes')|contains('xy') == true) and config.show_color_control != false) %}
+                                width: calc(100% - 190px);
+                              {% else %}
+                                width: calc(100% - 136px);
+                              {% endif %}
+                              left: 68px;
+                              top: 18.2%
+                            }
+                        .: |
+                          .actions {
+                            display: flex;
+                            flex-basis: min-content;
+                            align-items: flex-end !important;
+                            justify-content: flex-end !important;
+                            {% if state_attr(config.entity, 'supported_color_modes')|contains('brightness') == true %}
+                              flex-grow: 9;
+                              flex-shrink: 1;
+                            {% else %}
+                              flex-grow: 0;
+                              flex-shrink: 0;
+                            {% endif %}
+                          }
+                          mushroom-state-info {
+                            display: flex;
+                          }
+                  - type: custom:mushroom-light-card
+                    entity: light.og_stube_schreibtisch
+                    name: Schreibtisch Niklas
+                    show_brightness_control: true
+                    show_color_temp_control: true
+                    show_color_control: true
+                    layout: horizontal
+                    collapsible_controls: true
+                    use_light_color: true
+                    fill_container: false
+                    card_mod:
+                      style: |
+                        ha-card {
+                          background: none;
+                        }
+                        mushroom-state-info$:
+                          .container:
+                            .primary {
+                              {% if state_attr(config.entity, 'supported_color_modes')|contains('brightness') == true %}
+                                flex-shrink: 0;
+                                flex-grow: 0;
+                              {% else %}
+                                flex-shrink: 1;
+                                flex-grow: 1;
+                              {% endif %}
+                              padding-left: 5px;
+                              {% if state_attr(config.entity, 'rgb_color') == none %}
+                                {% if states(config.entity) == 'on' %}
+                                  text-shadow: 0px 0px 7px orange;
+                                  --primary-text-color: #1a1a1a;
+                                {% else %}
+                                {% endif %}
+                              {% else %}
+                                {% if (state_attr(config.entity,'rgb_color')[0] * 0.21 | float) + (state_attr(config.entity,'rgb_color')[1] * 0.72 | float) + (state_attr(config.entity,'rgb_color')[2] * 0.07 | float) >= 100 and state_attr(config.entity, 'rgb_color') != none %}
+                                  text-shadow: 0px 0px 7px rgba{{state_attr(config.entity,'rgb_color')[0] * 1, state_attr(config.entity,'rgb_color')[1] * 1, state_attr(config.entity,'rgb_color')[2] * 1, 1}};
+                                  --primary-text-color: #1a1a1a;
+                                {% else %}
+                                  text-shadow: 0px 0px 7px rgba{{state_attr(config.entity,'rgb_color')[0] * 0.5, state_attr(config.entity,'rgb_color')[1] * 0.5, state_attr(config.entity,'rgb_color')[2] * 0.5, 1}};
+                                  --primary-text-color: #fafafa;
+                                {% endif %}
+                              {% endif %}
+                            }
+                            .secondary {
+                              {% if state_attr(config.entity, 'supported_color_modes')|contains('brightness') == true %}
+                                {% if states(config.entity) == 'on' %}
+                                  position: absolute;
+                                  right: 15px;
+                                  top: 23px;
+                                {% else %}
+                                {% endif %}
+                              {% else %}
+                                flex-shrink: 1;
+                              {% endif %}
+                              flex-grow: 0;
+                              margin-right: 10px;
+                              padding: 0 5px;
+                              {% if state_attr(config.entity, 'rgb_color') == none %}
+                                {% if states(config.entity) == 'on' %}
+                                  text-shadow: 0px 0px 7px orange;
+                                  --secondary-text-color: #1a1a1a;
+                                {% else %}
+                                {% endif %}
+                              {% else %}
+                                {% if (state_attr(config.entity,'rgb_color')[0] * 0.21 | float) + (state_attr(config.entity,'rgb_color')[1] * 0.72 | float) + (state_attr(config.entity,'rgb_color')[2] * 0.07 | float) >= 100 and state_attr(config.entity, 'rgb_color') != none %}
+                                  text-shadow: 0px 0px 7px rgba{{state_attr(config.entity,'rgb_color')[0] * 1, state_attr(config.entity,'rgb_color')[1] * 1, state_attr(config.entity,'rgb_color')[2] * 1, 1}};
+                                  --secondary-text-color: #1a1a1a;
+                                {% else %}
+                                  text-shadow: 0px 0px 7px rgba{{state_attr(config.entity,'rgb_color')[0] * 0.5, state_attr(config.entity,'rgb_color')[1] * 0.5, state_attr(config.entity,'rgb_color')[2] * 0.5, 0.5}};
+                                  --secondary-text-color: #fafafa;
+                                {% endif %}
+                              {% endif %}
+                            }
+                          .: |
+                            .container {
+                              display: flex;
+                              {% if states(config.entity) == 'on' %}
+                                z-index: 1;
+                                flex-direction: row !important;
+                                align-items: baseline;
+                                pointer-events: none !important;
+                                margin-left: 10px;
+                                margin-right: -8px;
+                              {% else %}
+                              {% endif %}
+                            }
+                        mushroom-light-brightness-control$:
+                          mushroom-slider$: |
+                            .container {
+                              position: absolute;
+                              flex-basis: max-content;
+                              {% set rgb = (state_attr(config.entity, 'supported_color_modes')|contains('rgb') or state_attr(config.entity, 'supported_color_modes')|contains('xy')) and config.show_color_control != false %}
+                              {% set color_temp = state_attr(config.entity, 'supported_color_modes')|contains('color_temp') and config.show_color_temp_control != false %}
+                              {% if (rgb == true and color_temp == true) %}
+                                width: calc(100% - 190px);
+                              {% elif (rgb == false and color_temp == true) %}
+                                width: calc(100% - 136px);
+                              {% elif (rgb == true and color_temp == false) %}
+                                width: calc(100% - 136px);
+                              {% else %}
+                                width: calc(100% - 80px);
+                              {% endif %}
+                              left: 68px;
+                              top: 18.2%;
+                            }
+                            .slider-track-background {
+                              background-color: rgba{{state_attr(config.entity,'rgb_color')[0] * 0.75, state_attr(config.entity,'rgb_color')[1] * 0.75, state_attr(config.entity,'rgb_color')[2] * 0.75, 0.5}} !important;
+                            }
+                        mushroom-light-color-control$:
+                          mushroom-slider$: |
+                            .container {
+                              position: absolute;
+                              flex-basis: max-content;
+                              {% if (state_attr(config.entity, 'supported_color_modes')|contains('color_temp') == true and config.show_color_temp_control != false) %}
+                                width: calc(100% - 190px);
+                              {% else %}
+                                width: calc(100% - 136px);
+                              {% endif %}
+                              left: 68px;
+                              top: 18.2%
+                            }
+                        mushroom-light-color-temp-control$:
+                          mushroom-slider$: |
+                            .container {
+                              position: absolute;
+                              flex-basis: max-content;
+                              {% if ((state_attr(config.entity, 'supported_color_modes')|contains('rgb') or state_attr(config.entity, 'supported_color_modes')|contains('xy') == true) and config.show_color_control != false) %}
+                                width: calc(100% - 190px);
+                              {% else %}
+                                width: calc(100% - 136px);
+                              {% endif %}
+                              left: 68px;
+                              top: 18.2%
+                            }
+                        .: |
+                          .actions {
+                            display: flex;
+                            flex-basis: min-content;
+                            align-items: flex-end !important;
+                            justify-content: flex-end !important;
+                            {% if state_attr(config.entity, 'supported_color_modes')|contains('brightness') == true %}
+                              flex-grow: 9;
+                              flex-shrink: 1;
+                            {% else %}
+                              flex-grow: 0;
+                              flex-shrink: 0;
+                            {% endif %}
+                          }
+                          mushroom-state-info {
+                            display: flex;
+                          }
+                  - type: custom:mushroom-light-card
+                    entity: light.og_stube_schreibtisch_sandra_licht
+                    name: Schreibtisch Sandra
+                    show_brightness_control: true
+                    show_color_temp_control: true
+                    show_color_control: true
+                    layout: horizontal
+                    collapsible_controls: true
+                    use_light_color: true
+                    fill_container: false
+                    card_mod:
+                      style: |
+                        ha-card {
+                          background: none;
+                        }
+                        mushroom-state-info$:
+                          .container:
+                            .primary {
+                              {% if state_attr(config.entity, 'supported_color_modes')|contains('brightness') == true %}
+                                flex-shrink: 0;
+                                flex-grow: 0;
+                              {% else %}
+                                flex-shrink: 1;
+                                flex-grow: 1;
+                              {% endif %}
+                              padding-left: 5px;
+                              {% if state_attr(config.entity, 'rgb_color') == none %}
+                                {% if states(config.entity) == 'on' %}
+                                  text-shadow: 0px 0px 7px orange;
+                                  --primary-text-color: #1a1a1a;
+                                {% else %}
+                                {% endif %}
+                              {% else %}
+                                {% if (state_attr(config.entity,'rgb_color')[0] * 0.21 | float) + (state_attr(config.entity,'rgb_color')[1] * 0.72 | float) + (state_attr(config.entity,'rgb_color')[2] * 0.07 | float) >= 100 and state_attr(config.entity, 'rgb_color') != none %}
+                                  text-shadow: 0px 0px 7px rgba{{state_attr(config.entity,'rgb_color')[0] * 1, state_attr(config.entity,'rgb_color')[1] * 1, state_attr(config.entity,'rgb_color')[2] * 1, 1}};
+                                  --primary-text-color: #1a1a1a;
+                                {% else %}
+                                  text-shadow: 0px 0px 7px rgba{{state_attr(config.entity,'rgb_color')[0] * 0.5, state_attr(config.entity,'rgb_color')[1] * 0.5, state_attr(config.entity,'rgb_color')[2] * 0.5, 1}};
+                                  --primary-text-color: #fafafa;
+                                {% endif %}
+                              {% endif %}
+                            }
+                            .secondary {
+                              {% if state_attr(config.entity, 'supported_color_modes')|contains('brightness') == true %}
+                                {% if states(config.entity) == 'on' %}
+                                  position: absolute;
+                                  right: 15px;
+                                  top: 23px;
+                                {% else %}
+                                {% endif %}
+                              {% else %}
+                                flex-shrink: 1;
+                              {% endif %}
+                              flex-grow: 0;
+                              margin-right: 10px;
+                              padding: 0 5px;
+                              {% if state_attr(config.entity, 'rgb_color') == none %}
+                                {% if states(config.entity) == 'on' %}
+                                  text-shadow: 0px 0px 7px orange;
+                                  --secondary-text-color: #1a1a1a;
+                                {% else %}
+                                {% endif %}
+                              {% else %}
+                                {% if (state_attr(config.entity,'rgb_color')[0] * 0.21 | float) + (state_attr(config.entity,'rgb_color')[1] * 0.72 | float) + (state_attr(config.entity,'rgb_color')[2] * 0.07 | float) >= 100 and state_attr(config.entity, 'rgb_color') != none %}
+                                  text-shadow: 0px 0px 7px rgba{{state_attr(config.entity,'rgb_color')[0] * 1, state_attr(config.entity,'rgb_color')[1] * 1, state_attr(config.entity,'rgb_color')[2] * 1, 1}};
+                                  --secondary-text-color: #1a1a1a;
+                                {% else %}
+                                  text-shadow: 0px 0px 7px rgba{{state_attr(config.entity,'rgb_color')[0] * 0.5, state_attr(config.entity,'rgb_color')[1] * 0.5, state_attr(config.entity,'rgb_color')[2] * 0.5, 0.5}};
+                                  --secondary-text-color: #fafafa;
+                                {% endif %}
+                              {% endif %}
+                            }
+                          .: |
+                            .container {
+                              display: flex;
+                              {% if states(config.entity) == 'on' %}
+                                z-index: 1;
+                                flex-direction: row !important;
+                                align-items: baseline;
+                                pointer-events: none !important;
+                                margin-left: 10px;
+                                margin-right: -8px;
+                              {% else %}
+                              {% endif %}
+                            }
+                        mushroom-light-brightness-control$:
+                          mushroom-slider$: |
+                            .container {
+                              position: absolute;
+                              flex-basis: max-content;
+                              {% set rgb = (state_attr(config.entity, 'supported_color_modes')|contains('rgb') or state_attr(config.entity, 'supported_color_modes')|contains('xy')) and config.show_color_control != false %}
+                              {% set color_temp = state_attr(config.entity, 'supported_color_modes')|contains('color_temp') and config.show_color_temp_control != false %}
+                              {% if (rgb == true and color_temp == true) %}
+                                width: calc(100% - 190px);
+                              {% elif (rgb == false and color_temp == true) %}
+                                width: calc(100% - 136px);
+                              {% elif (rgb == true and color_temp == false) %}
+                                width: calc(100% - 136px);
+                              {% else %}
+                                width: calc(100% - 80px);
+                              {% endif %}
+                              left: 68px;
+                              top: 18.2%;
+                            }
+                            .slider-track-background {
+                              background-color: rgba{{state_attr(config.entity,'rgb_color')[0] * 0.75, state_attr(config.entity,'rgb_color')[1] * 0.75, state_attr(config.entity,'rgb_color')[2] * 0.75, 0.5}} !important;
+                            }
+                        mushroom-light-color-control$:
+                          mushroom-slider$: |
+                            .container {
+                              position: absolute;
+                              flex-basis: max-content;
+                              {% if (state_attr(config.entity, 'supported_color_modes')|contains('color_temp') == true and config.show_color_temp_control != false) %}
+                                width: calc(100% - 190px);
+                              {% else %}
+                                width: calc(100% - 136px);
+                              {% endif %}
+                              left: 68px;
+                              top: 18.2%
+                            }
+                        mushroom-light-color-temp-control$:
+                          mushroom-slider$: |
+                            .container {
+                              position: absolute;
+                              flex-basis: max-content;
+                              {% if ((state_attr(config.entity, 'supported_color_modes')|contains('rgb') or state_attr(config.entity, 'supported_color_modes')|contains('xy') == true) and config.show_color_control != false) %}
+                                width: calc(100% - 190px);
+                              {% else %}
+                                width: calc(100% - 136px);
+                              {% endif %}
+                              left: 68px;
+                              top: 18.2%
+                            }
+                        .: |
+                          .actions {
+                            display: flex;
+                            flex-basis: min-content;
+                            align-items: flex-end !important;
+                            justify-content: flex-end !important;
+                            {% if state_attr(config.entity, 'supported_color_modes')|contains('brightness') == true %}
+                              flex-grow: 9;
+                              flex-shrink: 1;
+                            {% else %}
+                              flex-grow: 0;
+                              flex-shrink: 0;
+                            {% endif %}
+                          }
+                          mushroom-state-info {
+                            display: flex;
+                          }
+                  - type: custom:simple-thermostat
+                    entity: climate.og_stube_heizungsthermostat
+                    header:
+                      name: false
+                      icon: true
+                      faults:
+                        - entity: binary_sensor.og_stube_fenster_ms_opening
+                          icon: mdi:window-open
+                        - entity: >-
+                            binary_sensor.og_stube_heizungsthermostat_batterie_leer
+                          icon: mdi:battery-charging-outline
+                    layout:
+                      mode:
+                        names: true
+                        icons: true
+                        headings: true
+                      step: row
+                    decimals: 1
+                    hide:
+                      temperature: true
+                      state: true
+                    sensors:
+                      - entity: sensor.og_stube_heizungsthermostat_temperatur
+                        icon: mdi:thermometer-lines
+                      - entity: climate.og_stube_heizungsthermostat
+                        icon: mdi:power-cycle
+                    control:
+                      hvac:
+                        _name: Modus
+                        "off":
+                          name: AUS
+                        auto:
+                          name: Auto
+                        heat:
+                          name: Manuell
+                          icon: mdi:hand-pointing-up
+                      preset:
+                        _name: Profil
+                        boost:
+                          name: Boost
+                          icon: mdi:radiator
+                        none: false
+                        week_program_1:
+                          name: Zuhause
+                          icon: mdi:home-account
+                        week_program_2:
+                          name: Arbeit
+                          icon: phu:desktop-computer
+                        week_program_3:
+                          name: Abgesenkt
+                          icon: mdi:snowflake-thermometer
+                        week_program_4: false
+                        week_program_5: false
+                        week_program_6: false
+                    card_mod:
+                      style: |
+                        .modes.heading .mode-title {
+                          min-width: 50px;
+                          display: inline-block;
+                        }
+                        ha-card {
+                        background: none;
+                        }
+                        .modes.heading .mode-item {
+                          border-radius: 28px;
+                        }
+                  - type: grid
+                    square: false
+                    columns: 2
+                    cards:
+                      - type: custom:mushroom-entity-card
+                        entity: sensor.og_stube_temperatur
+                        primary_info: state
+                        secondary_info: name
+                        name: Temperatur
+                        icon_color: green
+                        card_mod:
+                          style: |
+                            ha-card {
+                              background: none;
+                            }
+                      - type: custom:mushroom-entity-card
+                        entity: sensor.og_stube_luftsensor_luftfeuchtigkeit
+                        primary_info: state
+                        secondary_info: name
+                        name: Luftfeutigkeit
+                        icon_color: blue
+                        card_mod:
+                          style: |
+                            ha-card {
+                              background: none;
+                            }
+                  - type: custom:mini-graph-card
+                    entities:
+                      - entity: sensor.og_stube_temperatur
+                        name: Temperatur
+                        color: "#00bb33"
+                      - entity: sensor.og_stube_luftsensor_luftfeuchtigkeit
+                        name: Luftfeutigkeit
+                        color: "#2196f3"
+                        y_axis: secondary
+                    hours_to_show: 24
+                    line_width: 3
+                    font_size: 50
+                    animate: true
+                    show:
+                      name: false
+                      icon: false
+                      state: false
+                      legend: false
+                      fill: fade
+                    card_mod:
+                      style: |
+                        ha-card {
+                          background: none;
+                        }
+      - type: custom:bubble-card
+        card_type: separator
+        card_layout: large
+        sub_button:
+          - entity: binary_sensor.og_stube_fenster_ms_opening
+            show_background: true
+            show_state: false
+            show_name: false
+            show_last_changed: false
+            show_attribute: false
+            tap_action:
+              action: none
+          - entity: sensor.og_stube_luftsensor_pm2_5
+            show_background: true
+            show_state: true
+            show_name: false
+            show_last_changed: false
+            show_attribute: true
+            tap_action:
+              action: none
+          - entity: sensor.og_stube_luftsensor_luftfeuchtigkeit
+            show_background: true
+            show_state: true
+            show_name: false
+            show_last_changed: false
+            show_attribute: false
+            tap_action:
+              action: none
+          - entity: sensor.og_stube_temperatur
+            show_background: true
+            show_state: true
+            show_name: false
+            show_last_changed: false
+            show_attribute: false
+            tap_action:
+              action: none
+        styles: |-
+          .bubble-line {
+            background: var(--active-small);
+            opacity: 0.2;
+            margin: 0;
+            padding: 0;
+          }
+          .bubble-sub-button {
+            font-size: 10px;
+          }
+          .bubble-sub-button-1 {
+            display: ${hass.states['binary_sensor.og_stube_fenster_ms_opening'].state === 'on' ? '' : 'none'} !important;
+          }
+          .bubble-sub-button-2 {
+            background-color: ${hass.states['sensor.og_stube_luftsensor_pm2_5'].state === 'unavailable' ? 'var(--purple)' :
+                              hass.states['sensor.og_stube_luftsensor_pm2_5'].state >= 30 ? 'var(--red)' :
+                              hass.states['sensor.og_stube_luftsensor_pm2_5'].state >= 20 ? 'var(--yellow)' :
+                              'transparent'} !important;
+          }
+          .bubble-sub-button-3 {
+            background-color: ${hass.states['sensor.og_stube_luftsensor_luftfeuchtigkeit'].state === 'unavailable' ? 'var(--purple)' :
+                              hass.states['sensor.og_stube_luftsensor_luftfeuchtigkeit'].state >= 80 ? 'var(--red)' :
+                              hass.states['sensor.og_stube_luftsensor_luftfeuchtigkeit'].state >= 60 ? 'var(--yellow)' :
+                              'transparent'} !important;
+          }
+          .bubble-sub-button-4 {
+            background-color: ${hass.states['sensor.og_stube_temperatur'].state === 'unavailable' ? 'var(--purple)' :
+                              hass.states['sensor.og_stube_temperatur'].state >= 28 ? 'var(--red)' :
+                              hass.states['sensor.og_stube_temperatur'].state >= 23 ? 'var(--yellow)' :
+                              hass.states['sensor.og_stube_temperatur'].state >= 17 ? 'transparent' :
+                              'var(--blue)'} !important;
+          }
+        card_mod:
+          style: |
+            ha-card {
+              max-width: 100%;
+              width: 100%;
+              overflow: hidden;
+              display: inline-block;
+              padding: 0;
+            }
+        icon: ""

@@ -1,0 +1,1889 @@
+type: custom:stack-in-card
+card_mod:
+  style: |
+    ha-card {
+      padding: 0px !important;
+      @media only screen and (min-width: 1000px) {
+        min-height: 52rem;
+        background: var(--gray100)
+      }      
+    }
+mode: vertical
+keep:
+  background: false
+  border_radius: true
+  box_shadow: false
+  margin: true
+  outer_padding: true
+cards:
+  - type: vertical-stack
+    cards:
+      - type: custom:local-conditional-card
+        id: tibber-aktuell
+        default: show
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:paper-buttons-row
+              styles:
+                background: none
+                border: 4px solid var(--gray100)
+                border-radius: 24px
+                justify-content: center
+                width: max-content
+                margin: 0 auto 12px auto
+                gap: 50px
+              buttons:
+                - layout: name
+                  name: Aktuell
+                  tap_action:
+                    action: fire-dom-event
+                    local_conditional_card:
+                      action: set
+                      ids:
+                        - tibber-aktuell: show
+                        - tibber-verbrauch: hide
+                        - tibber-einstellungen: hide
+                  styles:
+                    name:
+                      color: var(--gray000)
+                      font-weight: bold
+                      padding: 0 22px
+                    button:
+                      background: var(--active-small)
+                      border-radius: 24px
+                      hight: 24px
+                      display: flex
+                - layout: name
+                  name: Verbrauch
+                  tap_action:
+                    action: fire-dom-event
+                    local_conditional_card:
+                      action: set
+                      ids:
+                        - tibber-aktuell: hide
+                        - tibber-verbrauch: show
+                        - tibber-einstellungen: hide
+                  styles:
+                    name:
+                      color: var(--gray800)
+                      font-weight: bold
+                      padding: 0 22px
+                    button:
+                      background: none
+                      border-radius: 24px
+                      hight: 24px
+                      display: flex
+                - layout: icon
+                  name: ""
+                  icon: mdi:cog
+                  tap_action:
+                    action: fire-dom-event
+                    local_conditional_card:
+                      action: set
+                      ids:
+                        - tibber-aktuell: hide
+                        - tibber-verbrauch: hide
+                        - tibber-einstellungen: show
+                  styles:
+                    icon:
+                      color: var(--gray800)
+                      font-weight: bold
+                      padding: 0 22px
+                    button:
+                      background: none
+                      border-radius: 24px
+                      hight: 24px
+                      display: flex
+            - type: vertical-stack
+              cards:
+                - type: markdown
+                  card_mod:
+                    style:
+                      .: |
+                        ha-markdown.no-header {
+                          padding: 0px !important; 
+                          }
+                        ha-markdown {
+                          padding: 0px 0px 0px !important; 
+                          }
+                        ha-card {
+                          overflow: hidden !important;
+                          background: none !important;
+                          box-shadow: none !important;
+                          margin-left: -0.6rem !important;
+                          margin-right: -0.6rem !important;
+                          margin-bottom: 0rem !important;
+                          border: none !important;
+                        }      
+                  content: >-
+                    <ha-alert alert-type="{% if
+                    states('sensor.tibber_price_level') in ['CHEAP',
+                    'VERY_CHEAP'] %}success{% elif
+                    states('sensor.tibber_price_level') in ['EXPENSIVE',
+                    'VERY_EXPENSIVE'] %}error{% else %}warning{% endif %}"
+                    title="Strompreis heute">Der Strompreis liegt heute
+                    zwischen **{{
+                    (state_attr("sensor.altwahnsdorf_69_strompreis",
+                    "min_price") * 100) | round(1) }} Cent** und **{{
+                    (state_attr("sensor.altwahnsdorf_69_strompreis",
+                    "max_price") * 100) | round(1) }} Cent**. Die
+                    Preisspanne beträgt **{{
+                    states("sensor.tibber_preisspanne_heute",
+                    with_unit=true) }}** und der Durchschnittspreis **{{
+                    (state_attr("sensor.altwahnsdorf_69_strompreis",
+                    "avg_price") * 100) | round(1) }} Cent**. Der aktuelle
+                    Preis von **{{
+                    (states("sensor.altwahnsdorf_69_strompreis") |
+                    float(default=0) * 100) | round(1) }} Cent** ist **{{
+                    states("sensor.tibber_price_level_deutsch")
+                    }}**.</ha-alert>
+                - type: custom:expander-card
+                  card_mod:
+                    style: |
+                      ha-card {
+                          overflow: hidden !important;
+                          background: none !important;
+                          box-shadow: none !important;
+                          margin-left: -1.7rem !important;
+                          margin-right: -1.8rem !important;
+                          margin-bottom: -0.9rem !important;
+                          border: none !important;
+                        }      
+                      }
+                  title-card:
+                    type: markdown
+                    card_mod:
+                      style:
+                        .: |
+                          ha-markdown.no-header {
+                            padding: 0px !important; 
+                            }
+                          ha-markdown {
+                            padding: 0px 0px 0px !important; 
+                            }
+                          ha-card {
+                            overflow: hidden !important;
+                            background: none !important;
+                            box-shadow: none !important;
+                            border: none !important;
+                          }    
+                    content: >-
+                      <ha-alert alert-type="info" title="{{
+                      states("sensor.tibber_strompreisentwicklung_kw")
+                      }}">{{
+                      states("sensor.tibber_strompreisentwicklung_short")
+                      | replace("\n", "") }}</ha-alert>    
+                  cards:
+                    - type: markdown
+                      card_mod:
+                        style: |
+                          ha-card {
+                              background: none
+                            }      
+                          }
+                      content: >-
+                        ### {{
+                        states("sensor.tibber_strompreisentwicklung_preise")
+                        }}
+
+                        ### {{
+                        state_attr("sensor.tibber_strompreisentwicklung_preise","text_eins")
+                        }}
+
+
+                        {{
+                        state_attr("sensor.tibber_strompreisentwicklung_preise","text_zwei")
+                        }}
+
+
+                        {{
+                        state_attr("sensor.tibber_strompreisentwicklung_preise","text_drei")
+                        }}
+
+                        ### {{
+                        states("sensor.tibber_strompreisentwicklung_fazit")
+                        }}
+
+                        [Quelle](https://tibber.com/de/strompreisentwicklung)                                                            
+                - type: conditional
+                  conditions:
+                    - condition: state
+                      entity: binary_sensor.tibber_vor_13_uhr
+                      state: "on"
+                  card:
+                    type: markdown
+                    card_mod:
+                      style:
+                        .: |
+                          ha-markdown.no-header {
+                            padding: 0px !important; 
+                            }
+                          ha-markdown {
+                            padding: 0px 0px 0px !important; 
+                            }
+                          ha-card {
+                            overflow: hidden !important;
+                            background: none !important;
+                            box-shadow: none !important;
+                            margin-left: -0.6rem !important;
+                            margin-right: -0.6rem !important;
+                            margin-bottom: 1rem !important;
+                            border: none !important;
+                          }      
+                    content: >-
+                      <ha-alert alert-type="warning">Der Strompreis für
+                      **morgen** steht **ab 13 Uhr** zur
+                      Verfügung.</ha-alert>
+                - type: vertical-stack
+                  cards:
+                    - type: custom:local-conditional-card
+                      id: tibber-aktuell-prognose
+                      default: show
+                      card:
+                        type: vertical-stack
+                        cards:
+                          - type: custom:paper-buttons-row
+                            styles:
+                              background: none
+                              border: 4px solid var(--gray100)
+                              border-radius: 24px
+                              justify-content: center
+                              width: max-content
+                              margin: 0 auto 12px auto
+                              gap: 150px
+                            buttons:
+                              - layout: name
+                                name: Prognose
+                                tap_action:
+                                  action: fire-dom-event
+                                  local_conditional_card:
+                                    action: set
+                                    ids:
+                                      - tibber-aktuell-prognose: show
+                                      - tibber-aktuell-verlauf: hide
+                                styles:
+                                  name:
+                                    color: var(--gray000)
+                                    font-weight: bold
+                                    padding: 0 22px
+                                  button:
+                                    background: var(--active-small)
+                                    border-radius: 24px
+                                    hight: 24px
+                                    display: flex
+                              - layout: name
+                                name: Verlauf
+                                tap_action:
+                                  action: fire-dom-event
+                                  local_conditional_card:
+                                    action: set
+                                    ids:
+                                      - tibber-aktuell-prognose: hide
+                                      - tibber-aktuell-verlauf: show
+                                styles:
+                                  name:
+                                    color: var(--gray800)
+                                    font-weight: bold
+                                    padding: 0 22px
+                                  button:
+                                    background: none
+                                    border-radius: 24px
+                                    hight: 24px
+                                    display: flex
+                          - type: custom:apexcharts-card
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  padding: 0px !important;
+                                  border: none;
+                                  background: none;
+                                  box-shadow: none;
+                                  margin-bottom: -3rem;
+                                }      
+                            experimental:
+                              color_threshold: true
+                            yaxis:
+                              - id: KostenKWH
+                                opposite: false
+                                apex_config:
+                                  tickAmount: 10
+                                  forceNiceScale: true
+                                  decimalsInFloat: 0
+                            all_series_config:
+                              unit: C
+                            apex_config:
+                              grid:
+                                show: true
+                                borderColor: var(--gray300)
+                              chart:
+                                height: 450px
+                                offsetY: -20
+                              tooltip:
+                                enabled: true
+                                followCursor: false
+                                x:
+                                  show: true
+                                fixed:
+                                  enabled: false
+                            header:
+                              show: true
+                              show_states: true
+                              colorize_states: true
+                              standard_format: false
+                            graph_span: 48h
+                            now:
+                              show: true
+                              color: var(--gray300)
+                              label: jetzt
+                            span:
+                              start: day
+                            series:
+                              - entity: sensor.tibber_prices
+                                show:
+                                  in_header: before_now
+                                  name_in_header: true
+                                  header_color_threshold: true
+                                name: Preis
+                                unit: ct
+                                color_threshold:
+                                  - value: 0
+                                    color: lime
+                                  - value: 15
+                                    color: green
+                                  - value: 20
+                                    color: Khaki
+                                  - value: 25
+                                    color: Gold
+                                  - value: 30
+                                    color: darkorange
+                                  - value: 35
+                                    color: orangered
+                                  - value: 40
+                                    color: red
+                                type: line
+                                curve: stepline
+                                extend_to: false
+                                stroke_width: 2
+                                float_precision: 2
+                                data_generator: >
+                                  const noon = new Date()
+
+                                  noon.setHours(0, 0, 0, 0)
+
+                                  const prices =
+                                  entity.attributes.today.concat(entity.attributes.tomorrow);
+
+                                  const data = [];
+
+                                  for(let i = 0; i < prices.length; i++) {
+                                    data.push([noon.getTime() + i * 1000 * 3600, prices[i].total * 100])
+                                  }
+
+                                  return data;
+                              - entity: sensor.altwahnsdorf_69_strompreis
+                                attribute: min_price
+                                unit: ct
+                                transform: return x * 100;
+                                show:
+                                  in_header: true
+                                  name_in_header: true
+                                  in_chart: false
+                                name: Min. heute
+                                color: var(--gray900)
+                              - entity: sensor.altwahnsdorf_69_strompreis
+                                attribute: avg_price
+                                stroke_width: 2
+                                unit: ct
+                                transform: return x * 100;
+                                show:
+                                  in_header: true
+                                  name_in_header: true
+                                  in_chart: false
+                                name: Ø-Preis heute
+                                color: var(--gray900)
+                              - entity: sensor.altwahnsdorf_69_strompreis
+                                attribute: max_price
+                                unit: ct
+                                transform: return x * 100;
+                                show:
+                                  in_header: true
+                                  name_in_header: true
+                                  in_chart: false
+                                name: Max. heute
+                                color: var(--gray900)
+                    - type: custom:local-conditional-card
+                      id: tibber-aktuell-verlauf
+                      default: hide
+                      card:
+                        type: vertical-stack
+                        cards:
+                          - type: custom:paper-buttons-row
+                            styles:
+                              background: none
+                              border: 4px solid var(--gray100)
+                              border-radius: 24px
+                              justify-content: center
+                              width: max-content
+                              margin: 0 auto 12px auto
+                              gap: 150px
+                            buttons:
+                              - layout: name
+                                name: Prognose
+                                tap_action:
+                                  action: fire-dom-event
+                                  local_conditional_card:
+                                    action: set
+                                    ids:
+                                      - tibber-aktuell-prognose: show
+                                      - tibber-aktuell-verlauf: hide
+                                styles:
+                                  name:
+                                    color: var(--gray800)
+                                    font-weight: bold
+                                    padding: 0 22px
+                                  button:
+                                    background: none
+                                    border-radius: 24px
+                                    hight: 24px
+                                    display: flex
+                              - layout: name
+                                name: Verlauf
+                                tap_action:
+                                  action: fire-dom-event
+                                  local_conditional_card:
+                                    action: set
+                                    ids:
+                                      - tibber-aktuell-prognose: hide
+                                      - tibber-aktuell-verlauf: show
+                                styles:
+                                  name:
+                                    color: var(--gray000)
+                                    font-weight: bold
+                                    padding: 0 22px
+                                  button:
+                                    background: var(--active-small)
+                                    border-radius: 24px
+                                    hight: 24px
+                                    display: flex
+                          - type: custom:apexcharts-card
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  padding: 0px !important;
+                                  border: none;
+                                  box-shadow: none;
+                                  margin-bottom: -3rem;
+                                  background: none;
+                                }  
+                            experimental:
+                              color_threshold: true
+                              brush: true
+                            graph_span: 90d
+                            brush:
+                              selection_span: 14d
+                            header:
+                              show: true
+                              show_states: true
+                              colorize_states: true
+                              standard_format: false
+                            apex_config:
+                              grid:
+                                show: true
+                                borderColor: var(--gray300)
+                              chart:
+                                height: 350px
+                                offsetY: -20
+                              tooltip:
+                                enabled: true
+                                followCursor: false
+                                x:
+                                  show: true
+                                fixed:
+                                  enabled: false
+                            all_series_config:
+                              statistics:
+                                type: state
+                                period: hour
+                              float_precision: 2
+                              unit: C
+                            yaxis:
+                              - id: KostenKWH
+                                opposite: false
+                                apex_config:
+                                  tickAmount: 10
+                                  forceNiceScale: true
+                                  decimalsInFloat: 0
+                            series:
+                              - entity: sensor.tibber_prices
+                                unit: ct
+                                name: Letzter Strompreis
+                                show:
+                                  header_color_threshold: true
+                                type: line
+                                curve: stepline
+                                transform: return x * 100;
+                                stroke_width: 1
+                                color_threshold:
+                                  - value: 0
+                                    color: lime
+                                  - value: 15
+                                    color: green
+                                  - value: 20
+                                    color: Khaki
+                                  - value: 25
+                                    color: gold
+                                  - value: 30
+                                    color: darkorange
+                                  - value: 35
+                                    color: orangered
+                                  - value: 40
+                                    color: red
+                              - entity: sensor.tibber_prices
+                                stroke_width: 1
+                                show:
+                                  in_brush: true
+                                  in_chart: false
+                                type: line
+                                curve: stepline
+                                transform: return x * 100;
+                                color_threshold:
+                                  - value: 0
+                                    color: lime
+                                  - value: 15
+                                    color: green
+                                  - value: 20
+                                    color: Khaki
+                                  - value: 25
+                                    color: Gold
+                                  - value: 30
+                                    color: darkorange
+                                  - value: 35
+                                    color: orangered
+                                  - value: 40
+                                    color: red
+      - type: custom:local-conditional-card
+        id: tibber-verbrauch
+        default: hide
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:paper-buttons-row
+              styles:
+                background: none
+                border: 4px solid var(--gray100)
+                border-radius: 24px
+                justify-content: center
+                width: max-content
+                margin: 0 auto 12px auto
+                gap: 50px
+              buttons:
+                - layout: name
+                  name: Aktuell
+                  tap_action:
+                    action: fire-dom-event
+                    local_conditional_card:
+                      action: set
+                      ids:
+                        - tibber-aktuell: show
+                        - tibber-verbrauch: hide
+                        - tibber-einstellungen: hide
+                  styles:
+                    name:
+                      color: var(--gray800)
+                      font-weight: bold
+                      padding: 0 22px
+                    button:
+                      background: none
+                      border-radius: 24px
+                      hight: 24px
+                      display: flex
+                - layout: name
+                  name: Verbrauch
+                  tap_action:
+                    action: fire-dom-event
+                    local_conditional_card:
+                      action: set
+                      ids:
+                        - tibber-aktuell: hide
+                        - tibber-verbrauch: show
+                        - tibber-einstellungen: hide
+                  styles:
+                    name:
+                      color: var(--gray000)
+                      font-weight: bold
+                      padding: 0 22px
+                    button:
+                      background: var(--active-small)
+                      border-radius: 24px
+                      hight: 24px
+                      display: flex
+                - layout: icon
+                  name: ""
+                  icon: mdi:cog
+                  tap_action:
+                    action: fire-dom-event
+                    local_conditional_card:
+                      action: set
+                      ids:
+                        - tibber-aktuell: hide
+                        - tibber-verbrauch: hide
+                        - tibber-einstellungen: show
+                  styles:
+                    icon:
+                      color: var(--gray800)
+                      font-weight: bold
+                      padding: 0 22px
+                    button:
+                      background: none
+                      border-radius: 24px
+                      hight: 24px
+                      display: flex
+            - type: vertical-stack
+              cards:
+                - type: custom:local-conditional-card
+                  id: tibber-verbrauch-24h
+                  default: show
+                  card:
+                    type: vertical-stack
+                    cards:
+                      - type: custom:paper-buttons-row
+                        styles:
+                          background: none
+                          border: 4px solid var(--gray100)
+                          border-radius: 24px
+                          justify-content: center
+                          width: max-content
+                          margin: 0 auto 12px auto
+                          gap: 25px
+                        buttons:
+                          - layout: name
+                            name: 24 Stunden
+                            tap_action:
+                              action: fire-dom-event
+                              local_conditional_card:
+                                action: set
+                                ids:
+                                  - tibber-verbrauch-24h: show
+                                  - tibber-verbrauch-30-tage: hide
+                                  - tibber-verbrauch-12-monate: hide
+                            styles:
+                              name:
+                                color: var(--gray000)
+                                font-weight: bold
+                                padding: 0 22px
+                              button:
+                                background: var(--active-small)
+                                border-radius: 24px
+                                hight: 24px
+                                display: flex
+                          - layout: name
+                            name: 30 Tage
+                            tap_action:
+                              action: fire-dom-event
+                              local_conditional_card:
+                                action: set
+                                ids:
+                                  - tibber-verbrauch-24h: hide
+                                  - tibber-verbrauch-30-tage: show
+                                  - tibber-verbrauch-12-monate: hide
+                            styles:
+                              name:
+                                color: var(--gray800)
+                                font-weight: bold
+                                padding: 0 22px
+                              button:
+                                background: none
+                                border-radius: 24px
+                                hight: 24px
+                                display: flex
+                          - layout: name
+                            name: 12 Monate
+                            tap_action:
+                              action: fire-dom-event
+                              local_conditional_card:
+                                action: set
+                                ids:
+                                  - tibber-verbrauch-24h: hide
+                                  - tibber-verbrauch-30-tage: hide
+                                  - tibber-verbrauch-12-monate: show
+                            styles:
+                              name:
+                                color: var(--gray800)
+                                font-weight: bold
+                                padding: 0 22px
+                              button:
+                                background: none
+                                border-radius: 24px
+                                hight: 24px
+                                display: flex
+                      - type: vertical-stack
+                        cards:
+                          - type: custom:apexcharts-card
+                            stacked: false
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  padding: 0px !important;
+                                  background: none;
+                                  border: none;
+                                  box-shadow: none;
+                                  margin-bottom: -2rem;
+                                }      
+                            yaxis:
+                              - min: 0
+                                id: KostenKWH
+                                opposite: false
+                                apex_config:
+                                  tickAmount: 5
+                                  forceNiceScale: true
+                                  decimalsInFloat: 1
+                                  title:
+                                    text: kWh
+                                    rotate: 270
+                                    style:
+                                      color: var(--blue-dark)
+                                  labels:
+                                    style:
+                                      colors: var(--blue-dark)
+                            apex_config:
+                              grid:
+                                show: true
+                                borderColor: var(--gray300)
+                              chart:
+                                height: 200px
+                                offsetY: -20
+                              tooltip:
+                                enabled: true
+                                shared: true
+                                followCursor: false
+                                x:
+                                  show: true
+                            header:
+                              show: true
+                              show_states: false
+                              colorize_states: true
+                              standard_format: false
+                              title: Verbrauch je Stunde
+                            graph_span: 24h
+                            span:
+                              end: hour
+                            series:
+                              - entity: sensor.tibber_verbrauch_letzte_stunde
+                                type: column
+                                curve: stepline
+                                opacity: 0.2
+                                stroke_width: 2
+                                color: var(--blue-dark)
+                                yaxis_id: KostenKWH
+                                float_precision: 2
+                                data_generator: >
+                                  return
+                                  entity.attributes.nodes.map((start,
+                                  index) => {
+                                    return [new Date(start["from"]).getTime(), entity.attributes.nodes[index]["consumption"]];
+                                  });          
+                                group_by:
+                                  func: sum
+                                  duration: 1h
+                                  fill: zero
+                          - type: custom:apexcharts-card
+                            stacked: true
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  padding: 0px !important;
+                                  border: none;
+                                  background: none;
+                                  box-shadow: none;
+                                  margin-bottom: -2rem;
+                                }      
+                            yaxis:
+                              - min: 0
+                                id: Kosten
+                                opposite: false
+                                apex_config:
+                                  tickAmount: 5
+                                  forceNiceScale: true
+                                  decimalsInFloat: 2
+                                  offsetX: -20
+                                  title:
+                                    text: €
+                                    rotate: 0
+                                    style:
+                                      color: var(--red)
+                                  labels:
+                                    style:
+                                      colors: var(--red)
+                              - min: 0
+                                id: Gesamtkosten
+                                show: false
+                                apex_config:
+                                  tickAmount: 5
+                                  forceNiceScale: true
+                                  decimalsInFloat: 2
+                                  offsetX: -20
+                            apex_config:
+                              grid:
+                                show: true
+                                borderColor: var(--gray300)
+                              chart:
+                                height: 200px
+                                offsetY: -20
+                              tooltip:
+                                enabled: true
+                                shared: true
+                                followCursor: false
+                                x:
+                                  show: true
+                            header:
+                              show: true
+                              show_states: false
+                              colorize_states: true
+                              standard_format: false
+                              title: Kosten je Stunde
+                            graph_span: 24h
+                            span:
+                              end: hour
+                            series:
+                              - entity: sensor.tibber_kosten_letzte_stunde
+                                type: column
+                                curve: stepline
+                                opacity: 0.2
+                                stroke_width: 2
+                                color: var(--blue)
+                                yaxis_id: Kosten
+                                name: Gebühren
+                                float_precision: 2
+                                data_generator: >
+                                  const tibber_gp =
+                                  parseFloat(hass.states['input_number.tibber_grundpreis_je_monat'].state)
+                                  / 30 / 24;
+
+                                  const tibber_nng =
+                                  parseFloat(hass.states['input_number.tibber_netznutzungsgebuhr_je_tag'].state)
+                                  / 24;
+
+                                  const tibber_msg =
+                                  parseFloat(hass.states['input_number.tibber_messstellengebur_je_tag'].state)
+                                  / 24;
+
+                                  const tibber_mwst =
+                                  parseFloat(hass.states['input_number.tibber_mehrwertsteuersatz'].state);
+
+                                  return
+                                  entity.attributes.nodes.map((start,
+                                  index) => {
+                                    return [new Date(start["from"]).getTime(), ((tibber_gp+tibber_msg+tibber_nng)*(1+tibber_mwst)) ];
+                                  });                                           
+                                group_by:
+                                  func: sum
+                                  duration: 1h
+                                  fill: zero
+                              - entity: sensor.tibber_kosten_letzte_stunde
+                                type: column
+                                curve: stepline
+                                opacity: 0.2
+                                stroke_width: 2
+                                color: var(--red)
+                                yaxis_id: Kosten
+                                name: Strompreis
+                                float_precision: 2
+                                data_generator: >
+                                  const tibber_gp =
+                                  parseFloat(hass.states['input_number.tibber_grundpreis_je_monat'].state)
+                                  / 30 / 24 * 0;
+
+                                  const tibber_nng =
+                                  parseFloat(hass.states['input_number.tibber_netznutzungsgebuhr_je_tag'].state)
+                                  / 24 * 0;
+
+                                  const tibber_msg =
+                                  parseFloat(hass.states['input_number.tibber_messstellengebur_je_tag'].state)
+                                  / 24 * 0;
+
+                                  const tibber_mwst =
+                                  parseFloat(hass.states['input_number.tibber_mehrwertsteuersatz'].state);
+
+                                  return
+                                  entity.attributes.nodes.map((start,
+                                  index) => {
+                                    return [new Date(start["from"]).getTime(), (((start["unitPrice"]-start["unitPriceVAT"])*start["consumption"])+tibber_gp+(((new Date(start["to"]).getTime() - new Date(start["from"]).getTime()) / (1000 * 60 * 60 * 24))*(tibber_nng+tibber_msg)))*(1+tibber_mwst) ];
+                                  });                                           
+                                group_by:
+                                  func: sum
+                                  duration: 1h
+                                  fill: zero
+                              - entity: sensor.tibber_kosten_letzte_stunde
+                                type: column
+                                opacity: 0
+                                stroke_width: 0
+                                color: var(--gray400)
+                                yaxis_id: Gesamtkosten
+                                name: Gesamt
+                                float_precision: 2
+                                data_generator: >
+                                  const tibber_gp =
+                                  parseFloat(hass.states['input_number.tibber_grundpreis_je_monat'].state)
+                                  / 30 / 24;
+
+                                  const tibber_nng =
+                                  parseFloat(hass.states['input_number.tibber_netznutzungsgebuhr_je_tag'].state)
+                                  / 24;
+
+                                  const tibber_msg =
+                                  parseFloat(hass.states['input_number.tibber_messstellengebur_je_tag'].state)
+                                  / 24;
+
+                                  const tibber_mwst =
+                                  parseFloat(hass.states['input_number.tibber_mehrwertsteuersatz'].state);
+
+                                  return
+                                  entity.attributes.nodes.map((start,
+                                  index) => {
+                                    return [new Date(start["from"]).getTime(), (((start["unitPrice"]-start["unitPriceVAT"])*start["consumption"])+tibber_gp+tibber_nng+tibber_msg)*(1+tibber_mwst) ];
+                                  });                                           
+                                group_by:
+                                  func: sum
+                                  duration: 1h
+                                  fill: zero
+                          - type: custom:apexcharts-card
+                            stacked: true
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  padding: 0px !important;
+                                  border: none;
+                                  background: none;
+                                  box-shadow: none;
+                                  margin-bottom: -2rem;
+                                }      
+                            yaxis:
+                              - min: 0
+                                max: 0.5
+                                id: KostenKWH
+                                opposite: false
+                                apex_config:
+                                  tickAmount: 5
+                                  forceNiceScale: true
+                                  decimalsInFloat: 2
+                                  title:
+                                    text: €
+                                    rotate: 0
+                                    style:
+                                      color: var(--orange)
+                                  labels:
+                                    style:
+                                      colors: var(--orange)
+                            apex_config:
+                              grid:
+                                show: true
+                                borderColor: var(--gray300)
+                              chart:
+                                height: 200px
+                                offsetY: -20
+                              tooltip:
+                                enabled: true
+                                shared: true
+                                followCursor: false
+                                x:
+                                  show: true
+                            header:
+                              show: true
+                              show_states: false
+                              colorize_states: true
+                              standard_format: false
+                              title: Preis je kWh
+                            graph_span: 24h
+                            span:
+                              end: hour
+                            series:
+                              - entity: sensor.tibber_prices
+                                type: column
+                                curve: stepline
+                                opacity: 0.2
+                                stroke_width: 2
+                                color: var(--orange)
+                                yaxis_id: KostenKWH
+                                float_precision: 3
+                                name: Kosten / kWh
+                                unit: EUR
+                                group_by:
+                                  func: sum
+                                  duration: 1h
+                                  fill: zero
+            - type: vertical-stack
+              cards:
+                - type: custom:local-conditional-card
+                  id: tibber-verbrauch-30-tage
+                  default: hide
+                  card:
+                    type: vertical-stack
+                    cards:
+                      - type: custom:paper-buttons-row
+                        styles:
+                          background: none
+                          border: 4px solid var(--gray100)
+                          border-radius: 24px
+                          justify-content: center
+                          width: max-content
+                          margin: 0 auto 12px auto
+                          gap: 25px
+                        buttons:
+                          - layout: name
+                            name: 24 Stunden
+                            tap_action:
+                              action: fire-dom-event
+                              local_conditional_card:
+                                action: set
+                                ids:
+                                  - tibber-verbrauch-24h: show
+                                  - tibber-verbrauch-30-tage: hide
+                                  - tibber-verbrauch-12-monate: hide
+                            styles:
+                              name:
+                                color: var(--gray800)
+                                font-weight: bold
+                                padding: 0 22px
+                              button:
+                                background: none
+                                border-radius: 24px
+                                hight: 24px
+                                display: flex
+                          - layout: name
+                            name: 30 Tage
+                            tap_action:
+                              action: fire-dom-event
+                              local_conditional_card:
+                                action: set
+                                ids:
+                                  - tibber-verbrauch-24h: hide
+                                  - tibber-verbrauch-30-tage: show
+                                  - tibber-verbrauch-12-monate: hide
+                            styles:
+                              name:
+                                color: var(--gray000)
+                                font-weight: bold
+                                padding: 0 22px
+                              button:
+                                background: var(--active-small)
+                                border-radius: 24px
+                                hight: 24px
+                                display: flex
+                          - layout: name
+                            name: 12 Monate
+                            tap_action:
+                              action: fire-dom-event
+                              local_conditional_card:
+                                action: set
+                                ids:
+                                  - tibber-verbrauch-24h: hide
+                                  - tibber-verbrauch-30-tage: hide
+                                  - tibber-verbrauch-12-monate: show
+                            styles:
+                              name:
+                                color: var(--gray800)
+                                font-weight: bold
+                                padding: 0 22px
+                              button:
+                                background: none
+                                border-radius: 24px
+                                hight: 24px
+                                display: flex
+                      - type: vertical-stack
+                        cards:
+                          - type: custom:apexcharts-card
+                            stacked: false
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  padding: 0px !important;
+                                  border: none;
+                                  background: none;
+                                  box-shadow: none;
+                                  margin-bottom: -2rem;
+                                }      
+                            yaxis:
+                              - min: 0
+                                id: KostenKWH
+                                opposite: false
+                                apex_config:
+                                  tickAmount: 5
+                                  forceNiceScale: true
+                                  decimalsInFloat: 0
+                                  title:
+                                    text: kWh
+                                    rotate: 270
+                                    style:
+                                      color: var(--blue-dark)
+                                  labels:
+                                    style:
+                                      colors: var(--blue-dark)
+                            apex_config:
+                              grid:
+                                show: true
+                                borderColor: var(--gray300)
+                              chart:
+                                height: 200px
+                                offsetY: -20
+                              tooltip:
+                                enabled: true
+                                shared: true
+                                followCursor: false
+                                x:
+                                  show: true
+                            header:
+                              show: true
+                              show_states: false
+                              colorize_states: true
+                              standard_format: false
+                              title: Verbrauch je Tag
+                            graph_span: 30d
+                            span:
+                              end: day
+                              offset: "-1d"
+                            series:
+                              - entity: sensor.tibber_tagesverbrauch
+                                type: column
+                                curve: stepline
+                                opacity: 0.2
+                                stroke_width: 2
+                                color: var(--blue-dark)
+                                yaxis_id: KostenKWH
+                                float_precision: 2
+                                data_generator: >
+                                  return
+                                  entity.attributes.nodes.map((start,
+                                  index) => {
+                                    return [new Date(start["from"]).getTime(), entity.attributes.nodes[index]["consumption"]];
+                                  });          
+                                group_by:
+                                  func: sum
+                                  duration: 1d
+                                  fill: zero
+                          - type: custom:apexcharts-card
+                            stacked: true
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  padding: 0px !important;
+                                  border: none;
+                                  background: none;
+                                  box-shadow: none;
+                                  margin-bottom: -2rem;
+                                }      
+                            yaxis:
+                              - min: 0
+                                id: Kosten
+                                opposite: false
+                                apex_config:
+                                  tickAmount: 5
+                                  forceNiceScale: true
+                                  decimalsInFloat: 0
+                                  offsetX: -20
+                                  title:
+                                    text: €
+                                    rotate: 0
+                                    style:
+                                      color: var(--red)
+                                  labels:
+                                    style:
+                                      colors: var(--red)
+                              - min: 0
+                                id: Gesamtkosten
+                                show: false
+                                apex_config:
+                                  tickAmount: 5
+                                  forceNiceScale: true
+                                  decimalsInFloat: 2
+                                  offsetX: -20
+                            apex_config:
+                              grid:
+                                show: true
+                                borderColor: var(--gray300)
+                              chart:
+                                height: 200px
+                                offsetY: -20
+                              tooltip:
+                                enabled: true
+                                shared: true
+                                followCursor: false
+                                x:
+                                  show: true
+                            header:
+                              show: true
+                              show_states: false
+                              colorize_states: true
+                              standard_format: false
+                              title: Kosten je Tag
+                            graph_span: 30d
+                            span:
+                              end: day
+                              offset: "-1d"
+                            series:
+                              - entity: sensor.tibber_tageskosten
+                                type: column
+                                curve: stepline
+                                opacity: 0.2
+                                stroke_width: 2
+                                color: var(--google-blue)
+                                yaxis_id: Kosten
+                                name: Gebühren
+                                float_precision: 2
+                                data_generator: >
+                                  const tibber_gp =
+                                  parseFloat(hass.states['input_number.tibber_grundpreis_je_monat'].state)
+                                  / 30;
+
+                                  const tibber_nng =
+                                  parseFloat(hass.states['input_number.tibber_netznutzungsgebuhr_je_tag'].state);
+
+                                  const tibber_msg =
+                                  parseFloat(hass.states['input_number.tibber_messstellengebur_je_tag'].state);
+
+                                  const tibber_mwst =
+                                  parseFloat(hass.states['input_number.tibber_mehrwertsteuersatz'].state);
+
+                                  return
+                                  entity.attributes.nodes.map((start,
+                                  index) => {
+                                    return [new Date(start["from"]).getTime(), (tibber_gp+(((new Date(start["to"]).getTime() - new Date(start["from"]).getTime()) / (1000 * 60 * 60 * 24))*(tibber_nng+tibber_msg)))*(1+tibber_mwst) ];
+                                  });                                           
+                                group_by:
+                                  func: sum
+                                  duration: 1d
+                                  fill: zero
+                              - entity: sensor.tibber_tageskosten
+                                type: column
+                                curve: stepline
+                                opacity: 0.2
+                                stroke_width: 2
+                                color: var(--red)
+                                yaxis_id: Kosten
+                                name: Strompreis
+                                float_precision: 2
+                                data_generator: >
+                                  const tibber_gp =
+                                  parseFloat(hass.states['input_number.tibber_grundpreis_je_monat'].state)
+                                  / 30 * 0;
+
+                                  const tibber_nng =
+                                  parseFloat(hass.states['input_number.tibber_netznutzungsgebuhr_je_tag'].state)
+                                  * 0;
+
+                                  const tibber_msg =
+                                  parseFloat(hass.states['input_number.tibber_messstellengebur_je_tag'].state)
+                                  * 0;
+
+                                  const tibber_mwst =
+                                  parseFloat(hass.states['input_number.tibber_mehrwertsteuersatz'].state);
+
+                                  return
+                                  entity.attributes.nodes.map((start,
+                                  index) => {
+                                    return [new Date(start["from"]).getTime(), (((start["unitPrice"]-start["unitPriceVAT"])*start["consumption"])+tibber_gp+(((new Date(start["to"]).getTime() - new Date(start["from"]).getTime()) / (1000 * 60 * 60 * 24))*(tibber_nng+tibber_msg)))*(1+tibber_mwst) ];
+                                  });                                           
+                                group_by:
+                                  func: sum
+                                  duration: 1d
+                                  fill: zero
+                              - entity: sensor.tibber_tageskosten
+                                type: column
+                                opacity: 0
+                                stroke_width: 0
+                                color: var(--gray400)
+                                yaxis_id: Gesamtkosten
+                                name: Gesamt
+                                float_precision: 2
+                                data_generator: >
+                                  const tibber_gp =
+                                  parseFloat(hass.states['input_number.tibber_grundpreis_je_monat'].state)
+                                  / 30;
+
+                                  const tibber_nng =
+                                  parseFloat(hass.states['input_number.tibber_netznutzungsgebuhr_je_tag'].state);
+
+                                  const tibber_msg =
+                                  parseFloat(hass.states['input_number.tibber_messstellengebur_je_tag'].state);
+
+                                  const tibber_mwst =
+                                  parseFloat(hass.states['input_number.tibber_mehrwertsteuersatz'].state);
+
+                                  return
+                                  entity.attributes.nodes.map((start,
+                                  index) => {
+                                    return [new Date(start["from"]).getTime(), (((start["unitPrice"]-start["unitPriceVAT"])*start["consumption"])+tibber_gp+(((new Date(start["to"]).getTime() - new Date(start["from"]).getTime()) / (1000 * 60 * 60 * 24))*(tibber_nng+tibber_msg)))*(1+tibber_mwst) ];
+                                  });                                           
+                                group_by:
+                                  func: sum
+                                  duration: 1d
+                                  fill: zero
+                          - type: custom:apexcharts-card
+                            stacked: true
+                            card_mod:
+                              style: |
+                                ha-card {
+                                  padding: 0px !important;
+                                  border: none;
+                                  background: none;
+                                  box-shadow: none;
+                                  margin-bottom: -2rem;
+                                }      
+                            yaxis:
+                              - min: 0
+                                max: 0.5
+                                id: KostenKWH
+                                opposite: false
+                                apex_config:
+                                  tickAmount: 5
+                                  forceNiceScale: true
+                                  decimalsInFloat: 2
+                                  title:
+                                    text: €
+                                    rotate: 0
+                                    style:
+                                      color: var(--orange)
+                                  labels:
+                                    style:
+                                      colors: var(--orange)
+                            apex_config:
+                              grid:
+                                show: true
+                                borderColor: var(--gray300)
+                              chart:
+                                height: 200px
+                                offsetY: -20
+                              tooltip:
+                                enabled: true
+                                shared: true
+                                followCursor: false
+                                x:
+                                  show: true
+                            header:
+                              show: true
+                              show_states: false
+                              colorize_states: true
+                              standard_format: false
+                              title: Preis je kWh
+                            graph_span: 30d
+                            span:
+                              end: day
+                              offset: "-1d"
+                            series:
+                              - entity: sensor.tibber_tageskosten
+                                type: column
+                                curve: stepline
+                                opacity: 0.2
+                                stroke_width: 2
+                                color: var(--orange)
+                                yaxis_id: KostenKWH
+                                float_precision: 2
+                                name: Strompreis / kWh
+                                unit: EUR
+                                data_generator: >
+                                  const tibber_gp =
+                                  parseFloat(hass.states['input_number.tibber_grundpreis_je_monat'].state)
+                                  / 30 * 0;
+
+                                  const tibber_nng =
+                                  parseFloat(hass.states['input_number.tibber_netznutzungsgebuhr_je_tag'].state)
+                                  * 0;
+
+                                  const tibber_msg =
+                                  parseFloat(hass.states['input_number.tibber_messstellengebur_je_tag'].state)
+                                  * 0;
+
+                                  const tibber_mwst =
+                                  parseFloat(hass.states['input_number.tibber_mehrwertsteuersatz'].state);
+
+                                  return
+                                  entity.attributes.nodes.map((start,
+                                  index) => {
+                                    return [new Date(start["from"]).getTime(), ((((start["unitPrice"]-start["unitPriceVAT"])*start["consumption"])+tibber_gp+(((new Date(start["to"]).getTime() - new Date(start["from"]).getTime()) / (1000 * 60 * 60 * 24))*(tibber_nng+tibber_msg)))*(1+tibber_mwst))/start["consumption"] ];
+                                  });                                   
+                                group_by:
+                                  func: sum
+                                  duration: 1d
+                                  fill: zero
+                - type: vertical-stack
+                  cards:
+                    - type: custom:local-conditional-card
+                      id: tibber-verbrauch-12-monate
+                      default: hide
+                      card:
+                        type: vertical-stack
+                        cards:
+                          - type: custom:paper-buttons-row
+                            styles:
+                              background: none
+                              border: 4px solid var(--gray100)
+                              border-radius: 24px
+                              justify-content: center
+                              width: max-content
+                              margin: 0 auto 12px auto
+                              gap: 25px
+                            buttons:
+                              - layout: name
+                                name: 24 Stunden
+                                tap_action:
+                                  action: fire-dom-event
+                                  local_conditional_card:
+                                    action: set
+                                    ids:
+                                      - tibber-verbrauch-24h: show
+                                      - tibber-verbrauch-30-tage: hide
+                                      - tibber-verbrauch-12-monate: hide
+                                styles:
+                                  name:
+                                    color: var(--gray800)
+                                    font-weight: bold
+                                    padding: 0 22px
+                                  button:
+                                    background: none
+                                    border-radius: 24px
+                                    hight: 24px
+                                    display: flex
+                              - layout: name
+                                name: 30 Tage
+                                tap_action:
+                                  action: fire-dom-event
+                                  local_conditional_card:
+                                    action: set
+                                    ids:
+                                      - tibber-verbrauch-24h: hide
+                                      - tibber-verbrauch-30-tage: show
+                                      - tibber-verbrauch-12-monate: hide
+                                styles:
+                                  name:
+                                    color: var(--gray800)
+                                    font-weight: bold
+                                    padding: 0 22px
+                                  button:
+                                    background: none
+                                    border-radius: 24px
+                                    hight: 24px
+                                    display: flex
+                              - layout: name
+                                name: 12 Monate
+                                tap_action:
+                                  action: fire-dom-event
+                                  local_conditional_card:
+                                    action: set
+                                    ids:
+                                      - tibber-verbrauch-24h: hide
+                                      - tibber-verbrauch-30-tage: hide
+                                      - tibber-verbrauch-12-monate: show
+                                styles:
+                                  name:
+                                    color: var(--gray000)
+                                    font-weight: bold
+                                    padding: 0 22px
+                                  button:
+                                    background: var(--active-small)
+                                    border-radius: 24px
+                                    hight: 24px
+                                    display: flex
+                          - type: vertical-stack
+                            cards:
+                              - type: custom:apexcharts-card
+                                stacked: false
+                                card_mod:
+                                  style: |
+                                    ha-card {
+                                      padding: 0px !important;
+                                      border: none;
+                                      background: none;
+                                      box-shadow: none;
+                                      margin-bottom: -2rem;
+                                    }      
+                                yaxis:
+                                  - min: 0
+                                    id: KostenKWH
+                                    opposite: false
+                                    apex_config:
+                                      tickAmount: 5
+                                      forceNiceScale: true
+                                      decimalsInFloat: 0
+                                      title:
+                                        text: kWh
+                                        rotate: 270
+                                        style:
+                                          color: var(--blue-dark)
+                                      labels:
+                                        style:
+                                          colors: var(--blue-dark)
+                                apex_config:
+                                  grid:
+                                    show: true
+                                    borderColor: var(--gray300)
+                                  chart:
+                                    height: 200px
+                                    offsetY: -20
+                                  tooltip:
+                                    enabled: true
+                                    shared: true
+                                    followCursor: false
+                                    x:
+                                      show: true
+                                header:
+                                  show: true
+                                  show_states: false
+                                  colorize_states: true
+                                  standard_format: false
+                                  title: Verbrauch je Monat
+                                graph_span: 1y
+                                span:
+                                  end: month
+                                series:
+                                  - entity: sensor.tibber_monthly_consumption
+                                    type: column
+                                    curve: stepline
+                                    opacity: 0.2
+                                    stroke_width: 2
+                                    color: var(--blue-dark)
+                                    yaxis_id: KostenKWH
+                                    float_precision: 2
+                                    data_generator: >
+                                      return
+                                      entity.attributes.nodes.map((start,
+                                      index) => {
+                                        return [new Date(start["from"]).getTime(), entity.attributes.nodes[index]["consumption"]];
+                                      });          
+                              - type: custom:apexcharts-card
+                                stacked: true
+                                card_mod:
+                                  style: |
+                                    ha-card {
+                                      padding: 0px !important;
+                                      border: none;
+                                      background: none;
+                                      box-shadow: none;
+                                      margin-bottom: -2rem;
+                                    }      
+                                yaxis:
+                                  - min: 0
+                                    id: Kosten
+                                    opposite: false
+                                    apex_config:
+                                      tickAmount: 5
+                                      forceNiceScale: true
+                                      decimalsInFloat: 0
+                                      offsetX: -20
+                                      title:
+                                        text: €
+                                        rotate: 0
+                                        style:
+                                          color: var(--red)
+                                      labels:
+                                        style:
+                                          colors: var(--red)
+                                  - min: 0
+                                    id: Gesamtkosten
+                                    show: false
+                                    apex_config:
+                                      tickAmount: 5
+                                      forceNiceScale: true
+                                      decimalsInFloat: 2
+                                      offsetX: -20
+                                apex_config:
+                                  grid:
+                                    show: true
+                                    borderColor: var(--gray300)
+                                  chart:
+                                    height: 200px
+                                    offsetY: -20
+                                  tooltip:
+                                    enabled: true
+                                    shared: true
+                                    followCursor: false
+                                    x:
+                                      show: true
+                                header:
+                                  show: true
+                                  show_states: false
+                                  colorize_states: true
+                                  standard_format: false
+                                  title: Kosten je Monat
+                                graph_span: 1y
+                                span:
+                                  end: month
+                                series:
+                                  - entity: sensor.tibber_monatliche_kosten
+                                    type: column
+                                    curve: stepline
+                                    opacity: 0.2
+                                    stroke_width: 2
+                                    color: var(--google-blue)
+                                    yaxis_id: Kosten
+                                    name: Gebühren
+                                    float_precision: 2
+                                    data_generator: >
+                                      return
+                                      entity.attributes.nodes.map((start,
+                                      index) => {
+                                        const tage = ((new Date(start["to"]).getTime() - new Date(start["from"]).getTime()) / (1000 * 60 * 60 * 24));
+                                        const tibber_gp = parseFloat(hass.states['input_number.tibber_grundpreis_je_monat'].state);
+                                        const tibber_nng = parseFloat(hass.states['input_number.tibber_netznutzungsgebuhr_je_tag'].state);
+                                        const tibber_msg = parseFloat(hass.states['input_number.tibber_messstellengebur_je_tag'].state);
+                                        const tibber_mwst = parseFloat(hass.states['input_number.tibber_mehrwertsteuersatz'].state);
+
+                                        // Berechne den Wert vor der Multiplikation
+                                        const vorherigerWert = tibber_gp + (tage * (tibber_nng + tibber_msg));
+
+                                        // Runde den Wert auf zwei Nachkommastellen
+                                        const gerundeterWert = Math.round(vorherigerWert * 100) / 100;
+
+                                        // Berechne den endgültigen Wert
+                                        const endwert = gerundeterWert * (1 + tibber_mwst);
+
+                                        return [new Date(start["from"]).getTime(), endwert];
+                                      });
+                                  - entity: sensor.tibber_monatliche_kosten
+                                    type: column
+                                    curve: stepline
+                                    opacity: 0.2
+                                    stroke_width: 2
+                                    color: var(--red)
+                                    yaxis_id: Kosten
+                                    name: Strompreis
+                                    float_precision: 2
+                                    data_generator: >
+                                      const tibber_gp =
+                                        parseFloat(hass.states['input_number.tibber_grundpreis_je_monat'].state) * 0;
+
+                                      const tibber_nng =
+                                        parseFloat(hass.states['input_number.tibber_netznutzungsgebuhr_je_tag'].state) * 0;
+
+                                      const tibber_msg =
+                                        parseFloat(hass.states['input_number.tibber_messstellengebur_je_tag'].state) * 0;
+
+                                      const tibber_mwst =
+                                        parseFloat(hass.states['input_number.tibber_mehrwertsteuersatz'].state);
+
+                                      return
+                                      entity.attributes.nodes.map((start,
+                                      index) => {
+                                        const calculatedValue =
+                                          (((start["unitPrice"] - start["unitPriceVAT"]) * start["consumption"]) +
+                                            tibber_gp +
+                                            ((new Date(start["to"]).getTime() - new Date(start["from"]).getTime()) /
+                                              (1000 * 60 * 60 * 24)) *
+                                              (tibber_nng + tibber_msg)) ;
+
+                                        // Runde den Wert auf 2 Dezimalstellen
+                                        const roundedValue = Math.round(calculatedValue * 100) / 100;
+
+                                        return [new Date(start["from"]).getTime(), roundedValue * (1 + tibber_mwst)];
+                                      });
+                                  - entity: sensor.tibber_monatliche_kosten
+                                    type: column
+                                    opacity: 0
+                                    stroke_width: 0
+                                    color: var(--gray400)
+                                    yaxis_id: Gesamtkosten
+                                    name: Gesamt
+                                    float_precision: 2
+                                    data_generator: >
+                                      return
+                                      entity.attributes.nodes.map((start,
+                                      index) => {    
+                                        const tage = ((new Date(start["to"]).getTime() - new Date(start["from"]).getTime()) / (1000 * 60 * 60 * 24));
+                                        const tibber_gp = parseFloat(hass.states['input_number.tibber_grundpreis_je_monat'].state);
+                                        const tibber_nng = parseFloat(hass.states['input_number.tibber_netznutzungsgebuhr_je_tag'].state);
+                                        const tibber_msg = parseFloat(hass.states['input_number.tibber_messstellengebur_je_tag'].state);
+                                        const tibber_mwst = parseFloat(hass.states['input_number.tibber_mehrwertsteuersatz'].state);
+
+                                        const calculatedValue = (((start["unitPrice"] - start["unitPriceVAT"]) * start["consumption"]) +
+                                          tibber_gp + (tage * (tibber_nng + tibber_msg))) ;
+
+                                        // Runde den Wert auf 2 Dezimalstellen
+                                        const roundedValue = Math.round(calculatedValue * 100) / 100;
+
+                                        return [new Date(start["from"]).getTime(), roundedValue * (1 + tibber_mwst)];
+                                      });
+                                                                
+                              - type: custom:apexcharts-card
+                                stacked: true
+                                card_mod:
+                                  style: |
+                                    ha-card {
+                                      padding: 0px !important;
+                                      border: none;
+                                      background: none;
+                                      box-shadow: none;
+                                      margin-bottom: -2rem;
+                                    }      
+                                yaxis:
+                                  - min: 0
+                                    max: 0.5
+                                    id: KostenKWH
+                                    opposite: false
+                                    apex_config:
+                                      tickAmount: 5
+                                      forceNiceScale: true
+                                      decimalsInFloat: 2
+                                      title:
+                                        text: €
+                                        rotate: 0
+                                        style:
+                                          color: var(--orange)
+                                      labels:
+                                        style:
+                                          colors: var(--orange)
+                                apex_config:
+                                  grid:
+                                    show: true
+                                    borderColor: var(--gray300)
+                                  chart:
+                                    height: 200px
+                                    offsetY: -20
+                                  tooltip:
+                                    enabled: true
+                                    shared: true
+                                    followCursor: false
+                                    x:
+                                      show: true
+                                header:
+                                  show: true
+                                  show_states: false
+                                  colorize_states: true
+                                  standard_format: false
+                                  title: Preis je kWh
+                                graph_span: 1y
+                                span:
+                                  end: month
+                                series:
+                                  - entity: sensor.tibber_monatliche_kosten
+                                    type: column
+                                    curve: stepline
+                                    opacity: 0.2
+                                    stroke_width: 2
+                                    color: var(--orange)
+                                    yaxis_id: KostenKWH
+                                    float_precision: 2
+                                    name: Strompreis / kWh
+                                    unit: EUR
+                                    data_generator: >
+                                      const tibber_gp =
+                                      parseFloat(hass.states['input_number.tibber_grundpreis_je_monat'].state)
+                                      / 30 * 0;
+
+                                      const tibber_nng =
+                                      parseFloat(hass.states['input_number.tibber_netznutzungsgebuhr_je_tag'].state)
+                                      * 0;
+
+                                      const tibber_msg =
+                                      parseFloat(hass.states['input_number.tibber_messstellengebur_je_tag'].state)
+                                      * 0;
+
+                                      const tibber_mwst =
+                                      parseFloat(hass.states['input_number.tibber_mehrwertsteuersatz'].state);
+
+                                      return
+                                      entity.attributes.nodes.map((start,
+                                      index) => {
+                                        return [new Date(start["from"]).getTime(), ((((start["unitPrice"]-start["unitPriceVAT"])*start["consumption"])+tibber_gp+(((new Date(start["to"]).getTime() - new Date(start["from"]).getTime()) / (1000 * 60 * 60 * 24))*(tibber_nng+tibber_msg)))*(1+tibber_mwst))/start["consumption"] ];
+                                      });
+      - type: custom:local-conditional-card
+        id: tibber-einstellungen
+        default: hide
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:paper-buttons-row
+              styles:
+                background: none
+                border: 4px solid var(--gray100)
+                border-radius: 24px
+                justify-content: center
+                width: max-content
+                margin: 0 auto 12px auto
+                gap: 50px
+              buttons:
+                - layout: name
+                  name: Aktuell
+                  tap_action:
+                    action: fire-dom-event
+                    local_conditional_card:
+                      action: set
+                      ids:
+                        - tibber-aktuell: show
+                        - tibber-verbrauch: hide
+                        - tibber-einstellungen: hide
+                  styles:
+                    name:
+                      color: var(--gray800)
+                      font-weight: bold
+                      padding: 0 22px
+                    button:
+                      background: none
+                      border-radius: 24px
+                      hight: 24px
+                      display: flex
+                - layout: name
+                  name: Verbrauch
+                  tap_action:
+                    action: fire-dom-event
+                    local_conditional_card:
+                      action: set
+                      ids:
+                        - tibber-aktuell: hide
+                        - tibber-verbrauch: show
+                        - tibber-einstellungen: hide
+                  styles:
+                    name:
+                      color: var(--gray800)
+                      font-weight: bold
+                      padding: 0 22px
+                    button:
+                      background: none
+                      border-radius: 24px
+                      hight: 24px
+                      display: flex
+                - layout: icon
+                  name: ""
+                  icon: mdi:cog
+                  tap_action:
+                    action: fire-dom-event
+                    local_conditional_card:
+                      action: set
+                      ids:
+                        - tibber-aktuell: hide
+                        - tibber-verbrauch: hide
+                        - tibber-einstellungen: show
+                  styles:
+                    icon:
+                      color: var(--gray000)
+                      font-weight: bold
+                      padding: 0 22px
+                    button:
+                      background: var(--active-small)
+                      border-radius: 24px
+                      hight: 24px
+                      display: flex
+            - type: custom:stack-in-card
+              mode: vertical
+              card_mod:
+                style: |
+                  ha-card {
+                    background: none;
+                  }
+              cards:
+                - entity: input_number.tibber_grundpreis_je_monat
+                  type: tile
+                  color: red
+                - entity: input_number.tibber_messstellengebur_je_tag
+                  type: tile
+                  color: red
+                - entity: input_number.tibber_netznutzungsgebuhr_je_tag
+                  type: tile
+                  color: red
+                - entity: input_number.tibber_mehrwertsteuersatz
+                  type: tile
+                  color: red
+                - entity: sensor.tibber_price_level_deutsch
+                  type: tile
+                  color: blue
+                - entity: sensor.tibber_prices
+                  type: tile
+                  color: blue
